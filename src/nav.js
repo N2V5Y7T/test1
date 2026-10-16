@@ -2,6 +2,8 @@
  * The Nines — Hamburger Navigation & Continuous Bottom Category Bar
  */
 
+import { acquireLock, releaseLock, registerOverlayCloseHandler } from './scroll-lock.js';
+
 let _activeSectionKey = null;
 let _renderedSectionKeys = '';
 
@@ -44,12 +46,19 @@ export function initNav(layout, loader, easer) {
   function openDrawer() {
     drawer.classList.add('open');
     overlay.classList.add('open');
+    acquireLock('nav-drawer');
   }
 
   function closeDrawer() {
     drawer.classList.remove('open');
-    overlay.classList.remove('open');
+    const listDrawer = document.getElementById('list-drawer');
+    if (!listDrawer || !listDrawer.classList.contains('open')) {
+      overlay.classList.remove('open');
+    }
+    releaseLock('nav-drawer');
   }
+
+  registerOverlayCloseHandler('nav-drawer', closeDrawer);
 
   function jumpToSection(destIdx, currentLayout) {
     const sec = currentLayout[destIdx];
@@ -77,8 +86,8 @@ export function initNav(layout, loader, easer) {
     if (!btn) return;
     const destIdx = parseInt(btn.getAttribute('data-idx') || '0', 10);
     const activeLayout = window.__theNines ? window.__theNines.layout : layout;
-    jumpToSection(destIdx, activeLayout);
     closeDrawer();
+    jumpToSection(destIdx, activeLayout);
   });
 
   if (bottomNav) {

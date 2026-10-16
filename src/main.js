@@ -16,6 +16,7 @@ import { DebugHUD } from './debug-hud.js';
 import { buildMenuDOM, measureMenuHeights, updateMenuState } from './menu.js';
 import { initListUI } from './list.js';
 import { initNav, updateBottomNav } from './nav.js';
+import { isScrollLocked, getLockedScrollY, onLockChange } from './scroll-lock.js';
 
 // ── Global state ────────────────────────────────────────────────
 let layout = [];
@@ -122,6 +123,14 @@ async function init() {
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onResize, { passive: true });
 
+  onLockChange((locked, savedY) => {
+    if (easer) easer.snap(savedY);
+    if (!locked) {
+      lastScrollY = -1;
+      onScroll();
+    }
+  });
+
   // Initial render
   onScroll();
 
@@ -130,12 +139,27 @@ async function init() {
 
 // ── Scroll handler ──────────────────────────────────────────────
 function onScroll() {
+  if (isScrollLocked()) {
+    const lockedY = getLockedScrollY();
+    if (Math.abs(window.scrollY - lockedY) > 0.5) {
+      window.scrollTo(0, lockedY);
+    }
+    return;
+  }
   if (rafId) return;
   rafId = requestAnimationFrame(tick);
 }
 
 function tick() {
   rafId = null;
+  if (isScrollLocked()) {
+    const lockedY = getLockedScrollY();
+    if (easer) easer.snap(lockedY);
+    if (Math.abs(window.scrollY - lockedY) > 0.5) {
+      window.scrollTo(0, lockedY);
+    }
+    return;
+  }
   const realScrollY = window.scrollY;
 
   const scrollY = easer ? easer.tick(realScrollY) : realScrollY;

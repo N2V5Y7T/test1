@@ -12,6 +12,7 @@ import {
   decrementItem,
   getVariantQty,
 } from './list.js';
+import { acquireLock, releaseLock, registerOverlayCloseHandler } from './scroll-lock.js';
 
 const _itemRegistry = new Map();
 let _scrimEl = null;
@@ -27,7 +28,10 @@ function closeOptionPicker() {
     bg.classList.remove('open');
     setTimeout(() => bg.remove(), 260);
   }
+  releaseLock('option-picker');
 }
+
+registerOverlayCloseHandler('option-picker', closeOptionPicker);
 
 /**
  * Shows an interactive mobile bottom sheet letting the user add, increment,
@@ -177,6 +181,7 @@ function showOptionPicker(itemId) {
 
   document.body.appendChild(picker);
   requestAnimationFrame(() => picker.classList.add('open'));
+  acquireLock('option-picker');
 }
 
 function renderPriceBlock(item) {

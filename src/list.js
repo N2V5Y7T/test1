@@ -5,6 +5,8 @@
  * Single source of truth for all quantity state, persisted to localStorage (Spec §6).
  */
 
+import { acquireLock, releaseLock, registerOverlayCloseHandler } from './scroll-lock.js';
+
 const STORAGE_KEY = 'the_nines_my_list_v1';
 
 // id → { item, qty, baseId, variantLabel }
@@ -366,11 +368,18 @@ export function initListUI() {
     renderDrawer();
     drawer.classList.add('open');
     overlay.classList.add('open');
+    acquireLock('list-drawer');
   }
   function closeDrawer() {
     drawer.classList.remove('open');
-    overlay.classList.remove('open');
+    const navDrawer = document.getElementById('nav-drawer');
+    if (!navDrawer || !navDrawer.classList.contains('open')) {
+      overlay.classList.remove('open');
+    }
+    releaseLock('list-drawer');
   }
+
+  registerOverlayCloseHandler('list-drawer', closeDrawer);
 
   openBtn.addEventListener('click', openDrawer);
   closeBtn.addEventListener('click', closeDrawer);

@@ -647,6 +647,14 @@
       color: #fff;
     }
 
+    /* ── Coordinated Scroll Locking & Overscroll Containment ── */
+    html.overlay-scroll-locked,
+    body.overlay-scroll-locked {
+      overflow: hidden !important;
+      overscroll-behavior: none !important;
+      overscroll-behavior-y: none !important;
+    }
+
     /* Drawers */
     #drawer-overlay {
       position: fixed; inset: 0;
@@ -655,6 +663,9 @@
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.25s ease;
+      touch-action: none;
+      overscroll-behavior: none;
+      overscroll-behavior-y: none;
     }
     #drawer-overlay.open {
       opacity: 1; pointer-events: auto;
@@ -669,6 +680,8 @@
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
       transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      overscroll-behavior: contain;
+      overscroll-behavior-y: contain;
     }
     .left-drawer { left: 0; transform: translate3d(-100%, 0, 0); }
     .right-drawer { right: 0; transform: translate3d(100%, 0, 0); }
@@ -679,6 +692,8 @@
       padding: 20px 24px;
       border-bottom: 1px solid rgba(255,255,255,0.1);
       gap: 12px;
+      flex-shrink: 0;
+      touch-action: none;
     }
     .drawer-header-actions {
       display: flex; align-items: center; gap: 10px;
@@ -694,8 +709,14 @@
     }
 
     .drawer-content {
-      flex: 1; overflow-y: auto; padding: 20px 24px;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 20px 24px;
       -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      overscroll-behavior-y: contain;
+      touch-action: pan-y;
     }
 
     /* Nav Links */
@@ -732,6 +753,8 @@
       padding: 20px 24px max(24px, env(safe-area-inset-bottom));
       border-top: 1px solid rgba(255,255,255,0.1);
       background: #0a0a0a;
+      flex-shrink: 0;
+      touch-action: none;
     }
     .total-row {
       display: flex; justify-content: space-between; align-items: center;
@@ -824,6 +847,9 @@
       z-index: 200;
       opacity: 0;
       transition: opacity 0.22s ease;
+      touch-action: none;
+      overscroll-behavior: none;
+      overscroll-behavior-y: none;
     }
     #option-picker-bg.open { opacity: 1; }
 
@@ -839,6 +865,8 @@
       transform: translate3d(0, 100%, 0);
       transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
       box-shadow: 0 -8px 32px rgba(0,0,0,0.7);
+      overscroll-behavior: contain;
+      overscroll-behavior-y: contain;
     }
     #option-picker.open { transform: translate3d(0, 0, 0); }
 
@@ -848,11 +876,15 @@
       border-radius: 2px;
       margin: 0 auto 14px;
       cursor: pointer;
+      flex-shrink: 0;
+      touch-action: none;
     }
 
     .picker-header {
       padding: 0 24px 10px;
       text-align: center;
+      flex-shrink: 0;
+      touch-action: none;
     }
     .picker-title {
       font-family: 'Playfair Display', serif;
@@ -873,6 +905,9 @@
       -webkit-overflow-scrolling: touch;
       border-top: 1px solid rgba(255,255,255,0.08);
       border-bottom: 1px solid rgba(255,255,255,0.08);
+      overscroll-behavior: contain;
+      overscroll-behavior-y: contain;
+      touch-action: pan-y;
     }
 
     .picker-option-row {
