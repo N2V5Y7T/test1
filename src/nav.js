@@ -1,9 +1,9 @@
 /**
- * The Nines — Hamburger Navigation & Bottom Section Tab Strip
+ * The Nines — Hamburger Navigation & Continuous Bottom Category Bar
  */
 
 let _activeSectionKey = null;
-let _activeGroupKey = null;
+let _renderedSectionKeys = '';
 
 export function initNav(layout, loader, easer) {
   const drawer = document.getElementById('nav-drawer');
@@ -34,6 +34,9 @@ export function initNav(layout, loader, easer) {
       }
     });
     linksContainer.innerHTML = html;
+
+    // Also ensure the continuous bottom category bar has fresh layout indices
+    buildContinuousBottomBar(bottomNav, currentLayout);
   }
 
   rebuildLinks(layout);
@@ -92,52 +95,86 @@ export function initNav(layout, loader, easer) {
 }
 
 /**
- * Updates the bottom section pill strip + pagination dots for the current group (Spec §4).
+ * Builds a single, unbroken horizontal stream of ALL menu sections
+ * (Food → Bar → Beverages) so scrolling or swiping never stops at a group boundary.
+ */
+function buildContinuousBottomBar(bottomNav, layout) {
+  if (!bottomNav || !layout || !layout.length) return;
+
+  const allSections = layout.filter(s => s.type === 'section');
+  const signature = allSections.map(s => `${s.key}:${s.index}`).join('|');
+  if (_renderedSectionKeys === signature && bottomNav.children.length > 0) {
+    return;
+  }
+  _renderedSectionKeys = signature;
+
+  let lastGroupKey = null;
+  const tabsParts = [];
+  const dotsParts = [];
+
+  allSections.forEach(s => {
+    if (lastGroupKey && s.groupKey !== lastGroupKey) {
+      tabsParts.push(`<span class="bottom-group-sep" aria-hidden="true"></span>`);
+      dotsParts.push(`<span class="bottom-dot-sep" aria-hidden="true"></span>`);
+    }
+    lastGroupKey = s.groupKey;
+
+    tabsParts.push(`
+      <button class="bottom-tab-btn" data-idx="${s.index}" data-key="${s.key}" data-group="${s.groupKey}">
+        ${s.label}
+      </button>
+    `);
+    dotsParts.push(`<span class="bottom-dot" data-key="${s.key}" data-group="${s.groupKey}"></span>`);
+  });
+
+  bottomNav.innerHTML = `
+    <div class="bottom-tabs-scroll">${tabsParts.join('')}</div>
+    <div class="bottom-dots">${dotsParts.join('')}</div>
+  `;
+  _activeSectionKey = null;
+}
+
+/**
+ * Updates the continuous bottom section pill strip + pagination dots as the user scrolls.
+ * Flows seamlessly from Food → Bar → Beverages in one continuous stream.
  */
 export function updateBottomNav(state, layout) {
   const bottomNav = document.getElementById('bottom-nav');
   if (!bottomNav || !state || !state.section) return;
 
-  const sec = state.section;
-  const groupKey = sec.groupKey;
+  buildContinuousBottomBar(bottomNav, layout);
 
-  // Hide on initial food intro before first-course
-  if (sec.type === 'group-intro' && state.segment === 'A' && state.segmentProgress < 0.7) {
+  const sec = state.section;
+
+  // Hide only at the very beginning of the opening Food intro before First Course
+  if (sec.type === 'group-intro' && state.segment === 'A' && state.segmentProgress < 0.65) {
     bottomNav.classList.remove('visible');
   } else {
     bottomNav.classList.add('visible');
   }
 
-  if (_activeGroupKey !== groupKey) {
-    _activeGroupKey = groupKey;
-    const groupSections = layout.filter(s => s.groupKey === groupKey && s.type === 'section');
-
-    const tabsHtml = groupSections.map(s => `
-      <button class="bottom-tab-btn ${s.key === sec.key ? 'active' : ''}" data-idx="${s.index}" data-key="${s.key}">
-        ${s.label}
-      </button>
-    `).join('');
-
-    const dotsHtml = groupSections.length > 1
-      ? `<div class="bottom-dots">${groupSections.map(s => `<span class="bottom-dot ${s.key === sec.key ? 'active' : ''}" data-key="${s.key}"></span>`).join('')}</div>`
-      : '';
-
-    bottomNav.innerHTML = `
-      <div class="bottom-tabs-scroll">${tabsHtml}</div>
-      ${dotsHtml}
-    `;
-    _activeSectionKey = null;
+  // Determine active section key:
+  // - If in group-intro, highlight the first section right after it
+  // - If in cross-dissolve (Segment J) and >25% through, advance highlight to incoming section
+  let targetKey = sec.key;
+  if (sec.type === 'group-intro') {
+    const firstRegular = layout.find(s => s.type === 'section');
+    if (firstRegular) targetKey = firstRegular.key;
+  } else if (state.segment === 'J' && state.crossDissolve && state.crossDissolve.progress >= 0.25) {
+    const nextSec = state.crossDissolve.nextSection;
+    if (nextSec && nextSec.type === 'section') {
+      targetKey = nextSec.key;
+    }
   }
 
-  if (_activeSectionKey !== sec.key) {
-    _activeSectionKey = sec.key;
+  if (_activeSectionKey !== targetKey) {
+    _activeSectionKey = targetKey;
 
     const tabs = bottomNav.querySelectorAll('.bottom-tab-btn');
     tabs.forEach(t => {
-      const isMatch = t.getAttribute('data-key') === sec.key;
+      const isMatch = t.getAttribute('data-key') === targetKey;
       t.classList.toggle('active', isMatch);
       if (isMatch) {
-        // Center active pill horizontally inside the strip without vertical page scroll
         const scrollWrap = bottomNav.querySelector('.bottom-tabs-scroll');
         if (scrollWrap) {
           const targetLeft = t.offsetLeft - (scrollWrap.clientWidth / 2) + (t.offsetWidth / 2);
@@ -148,7 +185,7 @@ export function updateBottomNav(state, layout) {
 
     const dots = bottomNav.querySelectorAll('.bottom-dot');
     dots.forEach(d => {
-      d.classList.toggle('active', d.getAttribute('data-key') === sec.key);
+      d.classList.toggle('active', d.getAttribute('data-key') === targetKey);
     });
   }
 }

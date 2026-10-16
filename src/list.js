@@ -31,6 +31,7 @@ function getPriceNumber(item) {
 }
 
 function saveToStorage() {
+  if (typeof localStorage === 'undefined') return;
   try {
     const serialized = [];
     selectedItems.forEach((entry, id) => {
@@ -48,6 +49,7 @@ function saveToStorage() {
 }
 
 export function restoreFromStorage() {
+  if (typeof localStorage === 'undefined') return;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
@@ -104,6 +106,7 @@ function lookupVariantPrice(baseItem, label) {
  * Find and update the menu's add-btn / qty-control for a given plain item id.
  */
 function syncMenuButton(id) {
+  if (typeof document === 'undefined') return;
   const btn = document.querySelector(`.add-btn[data-id="${id}"]`);
   if (!btn) return;
 
@@ -136,6 +139,7 @@ function syncMenuButton(id) {
  * variants of that dish are currently in My List.
  */
 function syncVariantMenuButton(baseId) {
+  if (typeof document === 'undefined') return;
   const btn = document.querySelector(`.add-btn[data-id="${baseId}"][data-has-options="true"]`);
   if (!btn) return;
 
@@ -158,6 +162,16 @@ function syncVariantMenuButton(baseId) {
 export function getVariantQty(baseId, variantLabel) {
   const entry = selectedItems.get(`${baseId}:${variantLabel}`);
   return entry ? entry.qty : 0;
+}
+
+export function getItemOptionsTotalQty(baseId) {
+  let total = 0;
+  selectedItems.forEach((entry, key) => {
+    if (key === baseId || key.startsWith(`${baseId}:`)) {
+      total += entry.qty;
+    }
+  });
+  return total;
 }
 
 // ── Public API ──────────────────────────────────────────────────
@@ -264,6 +278,7 @@ export function clearList() {
 }
 
 export function updateHUD(animate = true) {
+  if (typeof document === 'undefined') return;
   let count = 0;
   selectedItems.forEach(entry => { count += entry.qty; });
 
@@ -286,6 +301,7 @@ export function updateHUD(animate = true) {
 }
 
 export function renderDrawer() {
+  if (typeof document === 'undefined') return;
   const container = document.getElementById('list-items-container');
   const totalEl   = document.getElementById('list-total-sum');
   const clearBtn  = document.getElementById('clear-list-btn');
@@ -339,6 +355,7 @@ export function renderDrawer() {
 }
 
 export function initListUI() {
+  if (typeof document === 'undefined') return;
   const drawer   = document.getElementById('list-drawer');
   const overlay  = document.getElementById('drawer-overlay');
   const openBtn  = document.getElementById('nav-list-btn');
@@ -362,7 +379,6 @@ export function initListUI() {
     clearBtn.addEventListener('click', () => clearList());
   }
 
-  // Restore saved items after menu items are registered
   restoreFromStorage();
 
   document.getElementById('list-items-container').addEventListener('click', (e) => {

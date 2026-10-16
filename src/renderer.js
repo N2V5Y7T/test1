@@ -29,21 +29,26 @@ export class Renderer {
 
   /**
    * Set canvas dimensions based on viewport, capped at DPR 2.
-   * Ignores small vertical-only mobile toolbar shifts unless force=true.
+   * On mobile, pre-allocates height to full physical screen height so the canvas
+   * buffer is NEVER reallocated when the browser address bar collapses/expands.
    */
   resize(force = false) {
     const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
     const rect = this.canvas.getBoundingClientRect();
 
     const w = Math.round(rect.width || window.innerWidth);
-    const h = Math.round(rect.height || window.innerHeight);
+    // Allocate to the maximum screen height (covers URL bar retraction without buffer reallocation)
+    const screenH = typeof window !== 'undefined' && window.screen && window.screen.height
+      ? window.screen.height
+      : window.innerHeight;
+    const h = Math.round(Math.max(rect.height || window.innerHeight, screenH));
 
-    // Ignore mobile browser toolbar show/hide height-only changes (<160px)
+    // Ignore mobile browser toolbar show/hide height-only changes (<180px)
     if (
       !force &&
       this._lastWidth === w &&
       this._lastDpr === dpr &&
-      Math.abs((this._lastHeight || 0) - h) < 160
+      Math.abs((this._lastHeight || 0) - h) < 180
     ) {
       return;
     }

@@ -1,30 +1,29 @@
 /**
  * The Nines — Section Configuration Builder
- * 
+ *
  * Loads manifest.json + menu.json, computes per-section layout data:
  * scroll heights, frame paths, hold frames, choreography timing.
  */
 
-// Default choreography values (from the-nines-animation-choreography.md)
 export const CHOREOGRAPHY = {
-  // Entrance (spread out for much smoother emergence)
+  // Entrance
   categoryStart:      0.0,    // Start immediately
-  categoryRiseEnd:    0.50,   // Glide smoothly over the entire entrance scroll
+  categoryRiseEnd:    0.50,   // Glide smoothly over the entrance scroll
   menuStart:          0.10,   // Menu starts fading in right after category
   holdAt:             0.50,   // Finish entrance when video hits holdFrame
-  
-  // Exit
-  exitVideoResumeAt:  0.40,   // fraction of exit segment where video resumes
-  exitLengthVh:       40,     // exit segment scroll length in vh (responsive and clean)
-  handoffLengthVh:    22,     // cross-dissolve length in vh (smooth quick crossfade)
+
+  // Exit & Handoff (calibrated for seamless continuous flow into next section/group)
+  exitVideoResumeAt:  0.35,   // fraction of exit segment where video resumes
+  exitLengthVh:       30,     // responsive upward exit so user flows quickly into the next section
+  handoffLengthVh:    18,     // smooth cross-dissolve into next section/group without dead scroll
 };
 
 // Estimate menu height in px from item count (refined in Phase 3 with real DOM)
 function estimateMenuHeight(section) {
-  const ITEM_HEIGHT = 85;       // px per item (name + desc + price row)
-  const SUBHEADER_HEIGHT = 50;  // px per subgroup header
-  const HEADER_HEIGHT = 60;     // category header
-  const PADDING = 100;          // top/bottom padding
+  const ITEM_HEIGHT = 85;
+  const SUBHEADER_HEIGHT = 50;
+  const HEADER_HEIGHT = 60;
+  const PADDING = 100;
 
   let count = 0;
   let subheaders = 0;
@@ -40,7 +39,8 @@ function estimateMenuHeight(section) {
 
 /**
  * Build complete section config from manifest + menu data.
- * Returns an array of section objects in scroll order.
+ * Returns an array of section objects in one continuous scroll stream
+ * (Food -> Bar -> Beverages).
  */
 export async function buildSectionConfig() {
   const [manifestRes, menuRes] = await Promise.all([
@@ -67,14 +67,14 @@ export async function buildSectionConfig() {
         frameCount: m.frameCount,
         holdFrame: null,
         holdP: 1.0,
-        scrubLengthVh: 110,   // calibrated for smooth, effortless 78-frame intro sequence
-        estimatedMenuHeightPx: 0,  // no menu items in group intro
+        scrubLengthVh: 105,
+        estimatedMenuHeightPx: 0,
         hasMenu: false,
         placeholderBytes: m.placeholderBytes,
       });
     }
 
-    // Regular sections
+    // Regular sections in continuous order across all groups
     for (const sec of group.sections) {
       const m = manifest[sec.key];
       if (!m) {
@@ -96,7 +96,7 @@ export async function buildSectionConfig() {
         frameCount: m.frameCount,
         holdFrame: sec.holdFrame ?? m.holdFrame,
         holdP,
-        scrubLengthVh: 140, // Standardized across all regular sections: eliminates wild 100vh-700vh speed fluctuations
+        scrubLengthVh: 115, // Snappy, continuous scrub rate between sections and groups
         estimatedMenuHeightPx: estimateMenuHeight(sec),
         hasMenu: true,
         items: sec.items || null,
@@ -118,7 +118,7 @@ export async function buildSectionConfig() {
  * @param {number} vh - viewport height in px
  */
 export function computeScrollLayout(sections, vh) {
-  let scrollOffset = 0;  // current absolute scroll position
+  let scrollOffset = 0;
 
   return sections.map((sec, index) => {
     const isGroupIntro = sec.type === 'group-intro';
@@ -127,13 +127,7 @@ export function computeScrollLayout(sections, vh) {
     const scrubPx = (sec.scrubLengthVh / 100) * vh;
 
     if (isGroupIntro) {
-      // Standalone continuous intro:
-      // Video scrubs continuously from frame 0 to end (p: 0.0 -> 1.0)
-      // Never freezes or holds. Transitions smoothly via Segment J cross-dissolve.
       const A_length = scrubPx;
-      const H_length = 0;
-      const X_length = 0;
-      const C_length = 0;
       const J_length = isLast ? 0 : handoffPx;
       const totalHeight = A_length + J_length;
 
@@ -177,30 +171,20 @@ export function computeScrollLayout(sections, vh) {
     const holdP = sec.holdP;
     const exitPx = (CHOREOGRAPHY.exitLengthVh / 100) * vh;
 
-    // Segment A: video scrubs from p=0 to p=holdP
     const A_length = holdP * scrubPx;
 
-    // Segment H: video frozen, menu scrolls
-    // H_length matches the actual distance needed to scroll the dishes.
-    // If all items fit on screen (measuredHeightPx === 0), H_length is 0 so there is no dead frozen scroll!
-    const H_length = sec.hasMenu 
-      ? (sec.measuredHeightPx !== undefined ? sec.measuredHeightPx : sec.estimatedMenuHeightPx) 
+    const H_length = sec.hasMenu
+      ? (sec.measuredHeightPx !== undefined ? sec.measuredHeightPx : sec.estimatedMenuHeightPx)
       : 0;
 
-    // Segment X: exit (exitLengthVh)
     const X_length = exitPx;
 
-    // Video progress covered during X's resume phase
-    // Rate matches A: 1 unit of p per scrubPx of scroll
-    // Resume starts at exitVideoResumeAt fraction of X
     const X_videoResumeScroll = (1 - CHOREOGRAPHY.exitVideoResumeAt) * X_length;
     const p_covered_in_X = X_videoResumeScroll / scrubPx;
 
-    // Segment C: remaining video progress
     const remaining_p = Math.max(0, 1.0 - holdP - p_covered_in_X);
     const C_length = remaining_p * scrubPx;
 
-    // Segment J: cross-dissolve (skip for last section)
     const J_length = isLast ? 0 : handoffPx;
 
     const totalHeight = A_length + H_length + X_length + C_length + J_length;
@@ -212,7 +196,6 @@ export function computeScrollLayout(sections, vh) {
       scrollEnd: scrollOffset + totalHeight,
       totalHeight,
 
-      // Segment boundaries (absolute scroll positions)
       A_start: scrollOffset,
       A_end: scrollOffset + A_length,
       A_length,
@@ -234,7 +217,6 @@ export function computeScrollLayout(sections, vh) {
       J_end: scrollOffset + totalHeight,
       J_length,
 
-      // Pre-computed p values
       p_at_hold: holdP,
       p_at_exit_end: holdP + p_covered_in_X,
       p_covered_in_X,
@@ -244,7 +226,3 @@ export function computeScrollLayout(sections, vh) {
     return layout;
   });
 }
-
-
-
-

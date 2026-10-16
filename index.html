@@ -25,6 +25,8 @@
       color: #fff;
       font-family: 'Inter', system-ui, sans-serif;
       margin: 0;
+      min-height: 100vh;
+      min-height: 100lvh;
       overscroll-behavior-y: none;
       -webkit-font-smoothing: antialiased;
     }
@@ -35,17 +37,24 @@
     }
 
     /* ── Fixed canvas viewport ── */
+    /* Mobile Chrome / Safari Address Bar Immunity:
+       Overscan 80px below screen and lock to 100lvh (Large Viewport Height).
+       When Chrome's URL bar collapses on a swipe, the canvas is ALREADY painted
+       in the newly exposed space — ZERO black strip and ZERO gap! */
     #canvas-viewport {
       position: fixed;
       top: 0;
       left: 0;
+      right: 0;
       width: 100%;
       height: 100vh; /* fallback */
-      height: 100dvh;
+      height: 100lvh;
+      min-height: 100%;
+      bottom: -80px;
+      height: calc(100lvh + 80px);
       z-index: 0;
       overflow: hidden;
 
-      /* Hardware-accelerated initial load state (no full-screen blur shader stall) */
       opacity: 0;
       transform: scale(1.03);
       transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
@@ -72,6 +81,7 @@
       display: block;
       width: 100%;
       height: 100%;
+      object-fit: cover;
     }
 
     /* ── Scroll container (drives all animations) ── */
@@ -86,9 +96,11 @@
       position: fixed;
       top: 0;
       left: 0;
+      right: 0;
+      bottom: 0;
       width: 100%;
       height: 100vh;
-      height: 100dvh;
+      height: 100lvh;
       z-index: 10;
       pointer-events: none;
       color: #fff;
@@ -131,11 +143,9 @@
     .menu-content {
       position: relative;
       z-index: 1;
-      /* Viewport-bounded height prevents 11,000px GPU mask texture allocation on long sections like Bar */
       max-height: calc(100dvh - max(84px, calc(env(safe-area-inset-top) + 64px)) - 96px);
       overflow: hidden;
       will-change: transform, opacity;
-      /* Top and bottom stationary alpha masks so scrolling items fade smoothly at both edges */
       -webkit-mask-image: linear-gradient(to bottom, transparent 0px, black 26px, black calc(100% - 32px), transparent 100%);
       mask-image: linear-gradient(to bottom, transparent 0px, black 26px, black calc(100% - 32px), transparent 100%);
       -webkit-mask-repeat: no-repeat;
@@ -257,12 +267,18 @@
     .menu-item.has-options .item-top-row {
       margin-bottom: 2px;
     }
+
+    /* Multi-option dishes row: price chips on left, circular button strictly on right */
     .item-bottom-row {
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: space-between;
-      gap: 8px;
+      gap: 12px;
       margin-top: 6px;
+    }
+    .item-bottom-row .item-price {
+      flex: 1;
+      min-width: 0;
     }
 
     /* Chips */
@@ -349,7 +365,6 @@
     #top-logo {
       height: 48px;
       width: auto;
-      /* logo-new.png has native RGBA alpha; invert+sepia gives crisp warm gold without multiply darkening */
       filter: invert(1) brightness(1.55) sepia(0.45) hue-rotate(-18deg);
     }
 
@@ -389,7 +404,7 @@
       width: 100%;
       z-index: 45;
       padding: 8px 12px max(10px, env(safe-area-inset-bottom));
-      background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.45) 70%, rgba(0,0,0,0) 100%);
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.45) 70%, rgba(0,0,0,0) 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -455,24 +470,51 @@
       background: #c17b55;
       transform: scale(1.35);
     }
+    .bottom-group-sep {
+      width: 1px;
+      height: 16px;
+      background: rgba(214, 143, 103, 0.35);
+      flex-shrink: 0;
+      margin: 0 2px;
+    }
+    .bottom-dot-sep {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(214, 143, 103, 0.4);
+      margin: 0 2px;
+    }
 
-    /* Add to List Button */
+    /* ── Add to List Button — Strictly Circular (Never Oval) ── */
     .price-action-wrapper {
       display: flex;
       align-items: center;
       gap: 14px;
+      flex-shrink: 0;
     }
+
     .add-btn {
       background: none;
       border: 1px solid rgba(255,255,255,0.35);
       color: #fff;
-      width: 28px; height: 28px;
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      max-width: 28px;
+      min-height: 28px;
+      max-height: 28px;
+      aspect-ratio: 1 / 1;
+      flex-shrink: 0;
+      flex-grow: 0;
       border-radius: 50%;
-      display: flex; justify-content: center; align-items: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       cursor: pointer;
       font-size: 16px;
       font-weight: 300;
       position: relative;
+      box-sizing: border-box;
       transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     }
     .add-btn::after {
@@ -490,13 +532,26 @@
       color: #fff;
       font-size: 12px;
       font-weight: 600;
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      max-width: 28px;
+      min-height: 28px;
+      max-height: 28px;
+      aspect-ratio: 1 / 1;
+      flex-shrink: 0;
+      border-radius: 50%;
     }
 
     /* ── Inline quantity control (replaces add-btn when qty > 0) ── */
     .add-btn.qty-active {
       width: auto;
       min-width: 72px;
+      max-width: none;
       height: 28px;
+      min-height: 28px;
+      aspect-ratio: auto;
+      flex-shrink: 0;
       border-radius: 14px;
       border-color: #c17b55;
       background: rgba(193,123,85,0.22);
@@ -762,10 +817,10 @@
       .drawer.open  { opacity: 1; pointer-events: auto; }
     }
 
-    /* ── Option Picker Bottom Sheet ── */
+    /* ── Option Picker Bottom Sheet with Interactive Steppers ── */
     #option-picker-bg {
       position: fixed; inset: 0;
-      background: rgba(0,0,0,0.58);
+      background: rgba(0,0,0,0.65);
       z-index: 200;
       opacity: 0;
       transition: opacity 0.22s ease;
@@ -779,71 +834,71 @@
       margin: 0 auto;
       background: #141414;
       border-radius: 20px 20px 0 0;
-      padding: 12px 0 max(24px, env(safe-area-inset-bottom));
+      padding: 12px 0 max(20px, env(safe-area-inset-bottom));
       z-index: 201;
       transform: translate3d(0, 100%, 0);
       transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 -8px 32px rgba(0,0,0,0.7);
     }
     #option-picker.open { transform: translate3d(0, 0, 0); }
 
     .picker-handle {
       width: 40px; height: 4px;
-      background: rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.25);
       border-radius: 2px;
-      margin: 0 auto 16px;
+      margin: 0 auto 14px;
+      cursor: pointer;
     }
 
+    .picker-header {
+      padding: 0 24px 10px;
+      text-align: center;
+    }
     .picker-title {
       font-family: 'Playfair Display', serif;
       font-size: 20px; font-weight: 400;
-      text-align: center;
-      padding: 0 24px 8px;
       color: #fff;
+      margin-bottom: 4px;
     }
     .picker-desc {
       font-family: 'Inter', sans-serif;
       font-size: 13px; color: #999;
-      text-align: center;
-      padding: 0 24px 14px;
-      line-height: 1.5;
+      line-height: 1.45;
     }
 
     .picker-options {
       display: flex; flex-direction: column;
-      gap: 1px;
+      max-height: 52vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       border-top: 1px solid rgba(255,255,255,0.08);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
 
-    .picker-option-btn {
+    .picker-option-row {
       display: flex; justify-content: space-between; align-items: center;
-      width: 100%;
-      background: none; border: none;
-      padding: 16px 24px;
-      cursor: pointer;
-      color: #fff;
-      font-family: 'Inter', sans-serif;
-      font-size: 15px;
+      padding: 14px 24px;
       border-bottom: 1px solid rgba(255,255,255,0.05);
-      transition: background 0.15s;
-      min-height: 56px;
-      text-align: left;
-      gap: 12px;
+      gap: 14px;
+      transition: background 0.18s ease;
     }
-    .picker-option-btn:active,
-    .picker-option-btn:focus-visible {
-      background: rgba(255,255,255,0.06);
+    .picker-option-row:last-child {
+      border-bottom: none;
     }
-    .picker-option-btn.selected {
-      background: rgba(193,123,85,0.18);
+    .picker-option-row.in-list {
+      background: rgba(193, 123, 85, 0.12);
     }
+
     .picker-option-info {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
+      display: flex; flex-direction: column; gap: 3px;
+      flex: 1; min-width: 0;
     }
     .picker-option-label {
-      font-weight: 400;
-      letter-spacing: 0.02em;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      color: #fff;
+      letter-spacing: 0.01em;
     }
     .picker-option-subdesc {
       font-size: 12px;
@@ -854,8 +909,96 @@
     .picker-option-price {
       color: #d68f67;
       font-weight: 500;
-      font-size: 15px;
-      white-space: nowrap;
+      font-size: 14px;
+      margin-top: 1px;
+    }
+
+    .picker-option-action {
+      flex-shrink: 0;
+    }
+
+    .picker-add-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      padding: 6px 14px;
+      border-radius: 18px;
+      cursor: pointer;
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .picker-add-btn:active {
+      background: rgba(193, 123, 85, 0.25);
+      border-color: #c17b55;
+    }
+
+    .picker-stepper {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(193, 123, 85, 0.2);
+      border: 1px solid #c17b55;
+      border-radius: 18px;
+      padding: 2px 6px;
+      gap: 6px;
+    }
+    .picker-step-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 17px;
+      font-weight: 400;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 50%;
+      min-width: 32px;
+      min-height: 32px;
+      transition: background 0.12s;
+    }
+    .picker-step-btn:active {
+      background: rgba(255,255,255,0.18);
+    }
+    .picker-qty-num {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .picker-footer {
+      padding: 14px 24px 4px;
+    }
+    .picker-done-btn {
+      width: 100%;
+      background: #c17b55;
+      border: none;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 13px 0;
+      border-radius: 22px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      min-height: 44px;
+    }
+    .picker-done-btn:active {
+      transform: scale(0.98);
+      background: #ad6d4a;
     }
   </style>
 </head>

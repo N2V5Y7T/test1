@@ -2,8 +2,7 @@
  * The Nines — DOM Menu Builder & State Updater
  *
  * Generates the HTML for the menu, measures actual rendered heights,
- * and syncs GPU-accelerated CSS transforms/opacities to the current scroll state
- * without mutating inherited CSS variables on large DOM subtrees.
+ * and syncs GPU-accelerated CSS transforms/opacities to the current scroll state.
  */
 
 import {
@@ -22,17 +21,18 @@ function closeOptionPicker() {
   const bg = document.getElementById('option-picker-bg');
   if (picker) {
     picker.classList.remove('open');
-    setTimeout(() => picker.remove(), 240);
+    setTimeout(() => picker.remove(), 260);
   }
   if (bg) {
     bg.classList.remove('open');
-    setTimeout(() => bg.remove(), 240);
+    setTimeout(() => bg.remove(), 260);
   }
 }
 
 /**
- * Shows a mobile bottom sheet letting the user pick a variant
- * (e.g. Veg / Chicken / Prawns or 30ml / Bottle) before adding to the list.
+ * Shows an interactive mobile bottom sheet letting the user add, increment,
+ * decrement, or deselect variants (e.g. Veg / Chicken / Prawns or 30ml / Bottle)
+ * with dedicated inline quantity steppers.
  */
 function showOptionPicker(itemId) {
   const item = _itemRegistry.get(itemId);
@@ -55,44 +55,125 @@ function showOptionPicker(itemId) {
   const picker = document.createElement('div');
   picker.id = 'option-picker';
   picker.setAttribute('role', 'dialog');
-  picker.setAttribute('aria-label', `Choose option for ${item.name}`);
+  picker.setAttribute('aria-label', `Choose options for ${item.name}`);
+
+  function buildOptionRowHtml(o) {
+    const qty = getVariantQty(itemId, o.label);
+    const inList = qty > 0;
+    return `
+      <div class="picker-option-row ${inList ? 'in-list' : ''}" data-base-id="${itemId}" data-label="${o.label}">
+        <div class="picker-option-info">
+          <span class="picker-option-label">${o.label}</span>
+          ${o.desc ? `<span class="picker-option-subdesc">${o.desc}</span>` : ''}
+          <span class="picker-option-price">₹${Number(o.price).toLocaleString('en-IN')}</span>
+        </div>
+        <div class="picker-option-action">
+          ${qty === 0 ? `
+            <button class="picker-add-btn" data-base-id="${itemId}" data-label="${o.label}" data-price="${o.price}" aria-label="Add ${o.label}">
+              ＋ Add
+            </button>
+          ` : `
+            <div class="picker-stepper">
+              <button class="picker-step-btn picker-minus-btn" data-base-id="${itemId}" data-label="${o.label}" aria-label="Decrease quantity">
+                −
+              </button>
+              <span class="picker-qty-num">${qty}</span>
+              <button class="picker-step-btn picker-plus-btn" data-base-id="${itemId}" data-label="${o.label}" data-price="${o.price}" aria-label="Increase quantity">
+                ＋
+              </button>
+            </div>
+          `}
+        </div>
+      </div>
+    `;
+  }
 
   picker.innerHTML = `
-    <div class="picker-handle"></div>
-    <h3 class="picker-title">${item.name}</h3>
-    ${item.desc ? `<p class="picker-desc">${item.desc}</p>` : ''}
+    <div class="picker-handle" title="Close"></div>
+    <div class="picker-header">
+      <h3 class="picker-title">${item.name}</h3>
+      ${item.desc ? `<p class="picker-desc">${item.desc}</p>` : ''}
+    </div>
     <div class="picker-options">
-      ${options.map(o => {
-        const currentQty = getVariantQty(itemId, o.label);
-        return `
-          <button class="picker-option-btn ${currentQty > 0 ? 'selected' : ''}" data-base-id="${itemId}" data-label="${o.label}" data-price="${o.price}">
-            <div class="picker-option-info">
-              <span class="picker-option-label">${o.label}${currentQty > 0 ? ` · In list (${currentQty})` : ''}</span>
-              ${o.desc ? `<span class="picker-option-subdesc">${o.desc}</span>` : ''}
-            </div>
-            <span class="picker-option-price">₹${Number(o.price).toLocaleString('en-IN')}</span>
-          </button>
-        `;
-      }).join('')}
+      ${options.map(buildOptionRowHtml).join('')}
+    </div>
+    <div class="picker-footer">
+      <button class="picker-done-btn">Done</button>
     </div>
   `;
 
-  let picked = false;
   picker.addEventListener('click', (e) => {
-    if (picked) return;
-    const btn = e.target.closest('.picker-option-btn');
-    if (!btn) return;
-    picked = true;
+    // 1. Done button or pull-handle closes sheet
+    if (e.target.closest('.picker-done-btn') || e.target.closest('.picker-handle')) {
+      closeOptionPicker();
+      return;
+    }
 
-    const baseId = btn.getAttribute('data-base-id');
-    const label  = btn.getAttribute('data-label');
-    const price  = parseFloat(btn.getAttribute('data-price'));
+    // 2. Add button (qty goes from 0 to 1)
+    const addBtn = e.target.closest('.picker-add-btn');
+    if (addBtn) {
+      const baseId = addBtn.getAttribute('data-base-id');
+      const label  = addBtn.getAttribute('data-label');
+      const price  = parseFloat(addBtn.getAttribute('data-price'));
+      addVariant(baseId, label, price);
+      updateRow(baseId, label);
+      return;
+    }
 
-    addVariant(baseId, label, price);
-    btn.classList.add('selected');
+    // 3. Stepper '+' button (increments quantity)
+    const plusBtn = e.target.closest('.picker-plus-btn');
+    if (plusBtn) {
+      const baseId = plusBtn.getAttribute('data-base-id');
+      const label  = plusBtn.getAttribute('data-label');
+      const price  = parseFloat(plusBtn.getAttribute('data-price'));
+      addVariant(baseId, label, price);
+      updateRow(baseId, label);
+      return;
+    }
 
-    setTimeout(closeOptionPicker, 220);
+    // 4. Stepper '-' button (decrements quantity or deselects at 0)
+    const minusBtn = e.target.closest('.picker-minus-btn');
+    if (minusBtn) {
+      const baseId = minusBtn.getAttribute('data-base-id');
+      const label  = minusBtn.getAttribute('data-label');
+      decrementItem(`${baseId}:${label}`);
+      updateRow(baseId, label);
+      return;
+    }
   });
+
+  function updateRow(baseId, label) {
+    const row = picker.querySelector(`.picker-option-row[data-label="${label}"]`);
+    if (!row) return;
+
+    const opt = options.find(o => o.label === label);
+    if (!opt) return;
+
+    const qty = getVariantQty(baseId, label);
+    const actionContainer = row.querySelector('.picker-option-action');
+
+    if (qty > 0) {
+      row.classList.add('in-list');
+      actionContainer.innerHTML = `
+        <div class="picker-stepper">
+          <button class="picker-step-btn picker-minus-btn" data-base-id="${baseId}" data-label="${label}" aria-label="Decrease quantity">
+            −
+          </button>
+          <span class="picker-qty-num">${qty}</span>
+          <button class="picker-step-btn picker-plus-btn" data-base-id="${baseId}" data-label="${label}" data-price="${opt.price}" aria-label="Increase quantity">
+            ＋
+          </button>
+        </div>
+      `;
+    } else {
+      row.classList.remove('in-list');
+      actionContainer.innerHTML = `
+        <button class="picker-add-btn" data-base-id="${baseId}" data-label="${label}" data-price="${opt.price}" aria-label="Add ${label}">
+          ＋ Add
+        </button>
+      `;
+    }
+  }
 
   document.body.appendChild(picker);
   requestAnimationFrame(() => picker.classList.add('open'));
@@ -140,7 +221,6 @@ function renderItem(item) {
   const dietDot = item.diet === 'veg'    ? '<span class="diet-dot veg" title="Vegetarian"></span>' :
                   item.diet === 'nonveg' ? '<span class="diet-dot nonveg" title="Non-Vegetarian"></span>' : '';
 
-  // Support both item-level desc and option-level desc (e.g. Tunisian, Grilled)
   let descText = item.desc || '';
   if (!descText && item.options) {
     const optDescs = item.options
@@ -242,7 +322,6 @@ export function buildMenuDOM(layout) {
     el.style.display = 'none';
     layer.appendChild(el);
 
-    // Cache child element references once to avoid querySelector calls and CSS var inheritance during scroll
     sec.domElement = el;
     sec.titleEl    = el.querySelector('.group-title');
     sec.headerEl   = el.querySelector('.sec-header');
@@ -304,7 +383,6 @@ export function measureMenuHeights(layout, vh) {
       const h = sec.trackEl ? sec.trackEl.scrollHeight : el.offsetHeight;
       const contentTop = sec.contentEl ? sec.contentEl.getBoundingClientRect().top : 148;
 
-      // Reserve bottom space for the bottom tab strip + safe area (96px)
       const availableSpace = Math.max(180, vh - contentTop - 96);
       if (sec.contentEl) {
         sec.contentEl.style.maxHeight = `${Math.round(availableSpace)}px`;
@@ -402,7 +480,6 @@ export function updateMenuState(state, layout, vh) {
       el.style.opacity = sectionOpacity.toFixed(3);
       el.style.transform = `translate3d(-50%, ${sectionY.toFixed(1)}px, 0)`;
 
-      // Apply entrance transforms directly to cached child layers (zero CSS variable subtree invalidation)
       if (activeSec.headerEl) {
         const headerOffset = (1 - catProg) * vh * 0.14;
         activeSec.headerEl.style.opacity = catProg.toFixed(3);
@@ -418,7 +495,6 @@ export function updateMenuState(state, layout, vh) {
       }
     }
 
-    // Only mutate DOM attributes when button interactivity actually changes
     if (activeSec._lastButtonsActive !== state.buttonsActive) {
       if (state.buttonsActive) {
         el.style.pointerEvents = 'auto';
