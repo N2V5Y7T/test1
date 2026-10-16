@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>The Nines — Frame Quality Viewer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #111;
+      color: #fff;
+      font-family: system-ui, sans-serif;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #aaa;
+      padding: 12px 16px 4px;
+      text-align: center;
+    }
+    .sub { font-size: 11px; color: #555; text-align: center; margin-bottom: 6px; }
+
+    /* ── Mode toggle ── */
+    #mode-bar {
+      display: flex;
+      gap: 6px;
+      padding: 6px 16px 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    #mode-bar button {
+      background: #2a2a2a;
+      border: 1px solid #444;
+      color: #bbb;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    #mode-bar button.active {
+      background: #c17b55;
+      border-color: #c17b55;
+      color: #fff;
+    }
+
+    /* ── Canvas area ── */
+    #canvas-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 414px;
+      aspect-ratio: 9/16;
+      background: #000;
+      overflow: hidden;
+      transition: max-width 0.2s;
+    }
+
+    canvas { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+    #main-canvas  { position: absolute; inset: 0; }
+    #compare-canvas { position: absolute; inset: 0; left: 50%; display: none; }
+
+    /* side-by-side mode */
+    #canvas-wrap.side-by-side { max-width: 828px; }
+    #canvas-wrap.side-by-side #main-canvas   { width: 50%; }
+    #canvas-wrap.side-by-side #compare-canvas { display: block; width: 50%; }
+
+    /* labels */
+    .side-label {
+      position: absolute;
+      top: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #fff;
+      text-shadow: 0 1px 4px #000;
+      pointer-events: none;
+      display: none;
+    }
+    #label-left  { left: 8px; }
+    #label-right { right: 8px; }
+    #canvas-wrap.side-by-side .side-label { display: block; }
+
+    /* loading */
+    #loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.85);
+      font-size: 13px;
+      color: #aaa;
+      z-index: 10;
+      transition: opacity 0.4s;
+    }
+    #loading.done { opacity: 0; pointer-events: none; }
+
+    /* hold indicator */
+    #hold-indicator {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(193,123,85,0.9);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 12px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    #hold-indicator.visible { opacity: 1; }
+
+    /* ── Controls ── */
+    #controls { width: 100%; max-width: 828px; padding: 10px 16px 4px; }
+
+    #frame-slider {
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      background: #444;
+      border-radius: 2px;
+      outline: none;
+    }
+    #frame-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: #c17b55;
+      cursor: pointer;
+    }
+
+    #info-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #777;
+      margin-top: 8px;
+    }
+    #frame-label { color: #ddd; font-weight: 600; }
+
+    /* ── Comparison table ── */
+    #compare-table {
+      width: 100%;
+      max-width: 828px;
+      padding: 10px 16px;
+      border-collapse: collapse;
+    }
+    #compare-table th, #compare-table td {
+      padding: 8px 12px;
+      text-align: center;
+      font-size: 12px;
+      border-bottom: 1px solid #222;
+    }
+    #compare-table th { color: #666; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; }
+    #compare-table td { color: #ccc; }
+    #compare-table tr.highlight td { color: #c17b55; font-weight: 700; }
+    #compare-table td:first-child { text-align: left; color: #888; }
+
+    /* ── Watermark ── */
+    #watermark-report {
+      width: 100%;
+      max-width: 828px;
+      margin: 0 0 8px;
+      padding: 10px 16px;
+      background: #1a2a1a;
+      border-top: 2px solid #2a5a2a;
+      font-size: 12px;
+      color: #8fcc8f;
+    }
+    #watermark-report strong { font-size: 13px; }
+
+    /* ── Scrub tip ── */
+    .tip { font-size: 11px; color: #444; text-align: center; padding: 4px 0 12px; }
+  </style>
+</head>
+<body>
+
+<h1>The Nines — Frame Quality Viewer</h1>
+<p class="sub">section: <strong style="color:#888">first-course</strong> · 720 × 1280 · quality=82</p>
+
+<div id="mode-bar">
+  <button id="btn-15"   class="active" onclick="setMode('15')">15 fps (current)</button>
+  <button id="btn-side" onclick="setMode('side')">Side-by-side</button>
+  <button id="btn-12"   onclick="setMode('12')">12 fps (test)</button>
+  <button id="btn-hold" onclick="jumpToHold()">⏸ Hold frame</button>
+</div>
+
+<div id="canvas-wrap">
+  <canvas id="main-canvas"    width="720" height="1280"></canvas>
+  <canvas id="compare-canvas" width="720" height="1280"></canvas>
+  <span id="label-left"  class="side-label">15 fps</span>
+  <span id="label-right" class="side-label">12 fps</span>
+  <div id="loading">Loading…</div>
+  <div id="hold-indicator">HOLD FRAME (p≈0.50)</div>
+</div>
+
+<div id="controls">
+  <input type="range" id="frame-slider" min="0" max="1000" value="0" step="1" />
+  <div id="info-row">
+    <span id="frame-label">—</span>
+    <span id="progress-label">0%</span>
+    <span id="size-label"></span>
+  </div>
+</div>
+
+<p class="tip">Drag the slider — or drag directly on the image</p>
+
+<!-- Comparison table -->
+<table id="compare-table">
+  <thead>
+    <tr><th>Setting</th><th>15 fps</th><th>12 fps</th><th>Difference</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Frames / section (8s)</td><td>120</td><td>96</td><td>−24 frames</td></tr>
+    <tr><td>Total size / section</td><td>3.03 MB</td><td>2.39 MB</td><td>−21%</td></tr>
+    <tr><td>Avg size / frame</td><td>26 KB</td><td>26 KB</td><td>identical</td></tr>
+    <tr><td>All 19 sections est.</td><td>~57 MB</td><td>~45 MB</td><td>−12 MB</td></tr>
+    <tr><td>Frame interval</td><td>66.7 ms</td><td>83.3 ms</td><td>+16.7 ms</td></tr>
+    <tr class="highlight"><td>Budget target</td><td colspan="2">1.1–1.9 MB / section</td><td>both exceed</td></tr>
+  </tbody>
+</table>
+
+<div id="watermark-report">
+  <strong>✅ Watermark Check — CLEAN</strong><br/>
+  Frame 1 (first) · Frame 60 (middle) · Frame 120 (last) — no Gemini sparkle or watermark detected
+</div>
+
+<script>
+// ── Config ───────────────────────────────────────────────────────────────────
+const TOTAL_PROGRESS = 1000;  // slider range (higher = smoother scrub)
+
+const sets = {
+  '15': { base: '/frames/first-course/',      count: 120, holdIdx: 60 },
+  '12': { base: '/frames/first-course-12fps/',count: 96,  holdIdx: 48 },
+};
+
+// ── State ────────────────────────────────────────────────────────────────────
+let mode = '15';
+let progress = 0;  // 0-1
+
+const mainCanvas    = document.getElementById('main-canvas');
+const compareCanvas = document.getElementById('compare-canvas');
+const mainCtx       = mainCanvas.getContext('2d');
+const compareCtx    = compareCanvas.getContext('2d');
+const slider        = document.getElementById('frame-slider');
+const frameLabel    = document.getElementById('frame-label');
+const progressLabel = document.getElementById('progress-label');
+const sizeLabel     = document.getElementById('size-label');
+const loadingEl     = document.getElementById('loading');
+const holdEl        = document.getElementById('hold-indicator');
+const wrap          = document.getElementById('canvas-wrap');
+const labelLeft     = document.getElementById('label-left');
+const labelRight    = document.getElementById('label-right');
+
+// Image caches
+const cache = { '15': {}, '12': {} };
+let loaded  = { '15': 0, '12': 0 };
+
+function pad(n) { return String(n).padStart(4, '0'); }
+
+// Coarse-to-fine load order
+function loadOrder(count) {
+  const seen = new Set(), order = [];
+  for (let step = Math.max(1, Math.floor(count / 8)); step >= 1; step = Math.floor(step / 2) || (step > 1 ? 1 : 0)) {
+    for (let i = 1; i <= count; i += step) {
+      if (!seen.has(i)) { seen.add(i); order.push(i); }
+    }
+    if (step === 1) break;
+  }
+  for (let i = 1; i <= count; i++) { if (!seen.has(i)) { seen.add(i); order.push(i); } }
+  return order;
+}
+
+function loadSet(key) {
+  const { base, count } = sets[key];
+  loadOrder(count).forEach(i => {
+    const img = new Image();
+    img.onload  = () => { cache[key][i] = img; loaded[key]++; onLoad(key); };
+    img.onerror = () => { loaded[key]++; onLoad(key); };
+    img.src = `${base}frame${pad(i)}.webp`;
+  });
+}
+
+function onLoad(key) {
+  const { count } = sets[key];
+  const pct = Math.round(loaded[key] / count * 100);
+  if (key === '15' || key === mode) {
+    loadingEl.textContent = `Loading ${key}fps… ${pct}%`;
+  }
+  if (key === '15' && loaded[key] >= count) {
+    loadingEl.classList.add('done');
+    draw();
+  }
+}
+
+loadSet('15');
+loadSet('12');
+
+// ── Drawing ──────────────────────────────────────────────────────────────────
+function nearest(key, p) {
+  const { count } = sets[key];
+  const target = Math.max(1, Math.min(count, Math.round(p * (count - 1)) + 1));
+  if (cache[key][target]) return cache[key][target];
+  for (let d = 1; d <= count; d++) {
+    if (cache[key][target - d]) return cache[key][target - d];
+    if (cache[key][target + d]) return cache[key][target + d];
+  }
+  return null;
+}
+
+function drawImg(ctx, canvas, key, p) {
+  const img = nearest(key, p);
+  if (!img) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+}
+
+function draw() {
+  const p = progress;
+  const mainKey    = mode === '12' ? '12' : '15';
+  const compareKey = '12';
+
+  drawImg(mainCtx, mainCanvas, mainKey, p);
+  if (mode === 'side') drawImg(compareCtx, compareCanvas, compareKey, p);
+
+  // Hold indicator — show when near the hold frame of the current set
+  const { count, holdIdx } = sets[mainKey];
+  const frameAtP = Math.round(p * (count - 1)) + 1;
+  const isHold = Math.abs(frameAtP - holdIdx) <= 1;
+  holdEl.classList.toggle('visible', isHold);
+
+  // Info labels
+  frameLabel.textContent    = `Frame ${frameAtP} / ${count}  [${mainKey}fps]`;
+  progressLabel.textContent = `${Math.round(p * 100)}%`;
+  sizeLabel.textContent     = mode === '12' ? '≈26 KB/frame  ·  2.4 MB total' : '≈26 KB/frame  ·  3.0 MB total';
+}
+
+// ── Slider ───────────────────────────────────────────────────────────────────
+slider.addEventListener('input', () => {
+  progress = parseInt(slider.value, 10) / TOTAL_PROGRESS;
+  draw();
+});
+
+// Pointer drag on canvas
+let dragging = false;
+wrap.addEventListener('pointerdown', e => { dragging = true; onPointer(e); });
+wrap.addEventListener('pointermove', e => { if (dragging) onPointer(e); });
+window.addEventListener('pointerup',   () => { dragging = false; });
+
+function onPointer(e) {
+  const rect = wrap.getBoundingClientRect();
+  let x = e.clientX - rect.left;
+  // In side-by-side mode, use full width for scrubbing regardless of which half
+  const w = mode === 'side' ? rect.width : rect.width;
+  progress = Math.max(0, Math.min(1, x / w));
+  slider.value = Math.round(progress * TOTAL_PROGRESS);
+  draw();
+}
+
+// ── Mode switching ───────────────────────────────────────────────────────────
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('#mode-bar button').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById(`btn-${m}`);
+  if (btn) btn.classList.add('active');
+
+  if (m === 'side') {
+    wrap.classList.add('side-by-side');
+    labelLeft.textContent  = '15 fps · 3.0 MB';
+    labelRight.textContent = '12 fps · 2.4 MB';
+    if (loaded['12'] < sets['12'].count) {
+      loadingEl.textContent = `Loading 12fps…`;
+      loadingEl.classList.remove('done');
+    }
+  } else {
+    wrap.classList.remove('side-by-side');
+  }
+  draw();
+}
+
+function jumpToHold() {
+  const key = mode === '12' ? '12' : '15';
+  const { count, holdIdx } = sets[key];
+  progress = (holdIdx - 1) / (count - 1);
+  slider.value = Math.round(progress * TOTAL_PROGRESS);
+  draw();
+}
+</script>
+</body>
+</html>
