@@ -84,7 +84,7 @@ export class Renderer {
    *
    * @param {object} state - from getScrollState()
    */
-  render(state) {
+  render(state, force = false) {
     const { section, crossDissolve } = state;
     const key = section.key;
     const frameFloat = state.frameFloat !== undefined ? state.frameFloat : state.frameIndex;
@@ -105,21 +105,22 @@ export class Renderer {
         crossDissolve.nextSection
       );
     } else {
-      this._renderFrame(key, frameFloat, section);
+      this._renderFrame(key, frameFloat, section, force);
     }
   }
 
   /**
    * Draw a frame from a section with velocity-aware sub-frame continuous blending.
+   * Eliminates ghosting and double-exposure by locking to a single sharp frame when stationary.
    */
-  _renderFrame(sectionKey, frameFloat, section) {
+  _renderFrame(sectionKey, frameFloat, section, force = false) {
     const count = section.frameCount;
     const clampedFloat = Math.max(0, Math.min(count - 1, frameFloat));
     const floorIndex = Math.floor(clampedFloat);
     const ceilIndex = Math.min(count - 1, floorIndex + 1);
     const blendAlpha = clampedFloat - floorIndex;
 
-    if (this._lastDrawnKey === sectionKey && Math.abs(this._lastDrawnFloat - clampedFloat) < 0.004) {
+    if (!force && this._lastDrawnKey === sectionKey && Math.abs(this._lastDrawnFloat - clampedFloat) < 0.004) {
       return;
     }
 
@@ -127,20 +128,23 @@ export class Renderer {
       ? Math.abs(clampedFloat - this._lastDrawnFloat)
       : 0;
 
-    const imgFloorExact = this.frameCache.getFrame(sectionKey, floorIndex);
-    const imgFloor = imgFloorExact || this.frameCache.nearestFrame(sectionKey, floorIndex);
-    if (!imgFloor) {
+    // When stationary / settled (frameDelta <= 0.04), lock to the nearest clean integer frame
+    const primaryIndex = (frameDelta <= 0.04 && blendAlpha >= 0.5) ? ceilIndex : floorIndex;
+    const imgPrimaryExact = this.frameCache.getFrame(sectionKey, primaryIndex);
+    const imgPrimary = imgPrimaryExact || this.frameCache.nearestFrame(sectionKey, primaryIndex);
+
+    if (!imgPrimary) {
       this._drawPlaceholder(section);
       return;
     }
 
     this.ctx.globalAlpha = 1;
-    this._drawImageCover(imgFloor);
-    this._lastValidImage = imgFloor;
+    this._drawImageCover(imgPrimary);
+    this._lastValidImage = imgPrimary;
 
-    // Velocity-aware optical blend: only double-draw when scrubbing slowly/moderately (<0.65 frames/tick).
-    // During fast mobile flicks, drawing a single frame avoids ghosting and halves GPU fill bandwidth.
-    if (imgFloorExact && frameDelta < 0.65 && blendAlpha > 0.02 && blendAlpha < 0.98 && ceilIndex !== floorIndex) {
+    // Optical blend: only blend adjacent frames during active moderate scrubbing.
+    // When stationary (frameDelta <= 0.04), never double-draw so the image is 100% sharp and crisp.
+    if (frameDelta > 0.04 && frameDelta < 0.65 && blendAlpha > 0.04 && blendAlpha < 0.96 && ceilIndex !== floorIndex) {
       const imgCeil = this.frameCache.getFrame(sectionKey, ceilIndex);
       if (imgCeil) {
         this.ctx.globalAlpha = blendAlpha;
@@ -151,7 +155,7 @@ export class Renderer {
 
     this._lastDrawnKey = sectionKey;
     this._lastDrawnFloat = clampedFloat;
-    this._lastDrawnFrame = floorIndex;
+    this._lastDrawnFrame = primaryIndex;
   }
 
   /**

@@ -33,6 +33,7 @@ let resizeTimer = null;
 let lastScrollY = -1;
 let viewportHeight = window.innerHeight;
 let viewportWidth = window.innerWidth;
+let lastState = null;
 
 function refreshLayoutHeights() {
   viewportHeight = window.innerHeight;
@@ -131,6 +132,15 @@ async function init() {
     }
   });
 
+  frameCache.onFrameDecoded((key, frameIdx) => {
+    if (lastState && lastState.section && lastState.section.key === key) {
+      const activeIdx = Math.floor(lastState.frameFloat !== undefined ? lastState.frameFloat : lastState.frameIndex);
+      if (Math.abs(activeIdx - frameIdx) <= 1) {
+        renderer.render(lastState, true);
+      }
+    }
+  });
+
   // Initial render
   onScroll();
 
@@ -175,6 +185,7 @@ function tick() {
   lastScrollY = scrollY;
 
   const state = getScrollState(scrollY, layout);
+  lastState = state;
 
   renderer.render(state);
   updateMenuState(state, layout, viewportHeight);

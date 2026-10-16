@@ -61,6 +61,17 @@ export class FrameCache {
     this._sections = new Map();
     // sectionKey → Image (tiny 130-byte pre-blurred placeholder.webp)
     this._placeholders = new Map();
+    this._frameDecodedListeners = [];
+  }
+
+  onFrameDecoded(callback) {
+    this._frameDecodedListeners.push(callback);
+  }
+
+  _notifyFrameDecoded(key, frameIdx) {
+    for (let i = 0; i < this._frameDecodedListeners.length; i++) {
+      this._frameDecodedListeners[i](key, frameIdx);
+    }
   }
 
   /**
@@ -163,12 +174,14 @@ export class FrameCache {
             if (!state.abortController.signal.aborted) {
               state.images.set(frameIdx, img);
               state.loadedCount++;
+              this._notifyFrameDecoded(state.key, frameIdx);
             }
             onSlotFree();
           });
         } else {
           state.images.set(frameIdx, img);
           state.loadedCount++;
+          this._notifyFrameDecoded(state.key, frameIdx);
           onSlotFree();
         }
       };

@@ -222,7 +222,7 @@ export function getScrollState(scrollY, layout) {
       menuProgress,
       exitProgress: 0,
       holdMenuScroll: 0,
-      buttonsActive: menuProgress >= 0.95,
+      buttonsActive: menuProgress >= 0.08,
       crossDissolve: null,
     };
   }
@@ -281,7 +281,7 @@ export function getScrollState(scrollY, layout) {
       menuProgress: 1,
       exitProgress,
       holdMenuScroll: sec.H_length,
-      buttonsActive: false,
+      buttonsActive: exitProgress <= 0.92,
       crossDissolve: null,
     };
   }

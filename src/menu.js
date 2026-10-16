@@ -338,6 +338,19 @@ export function buildMenuDOM(layout) {
   if (!layer._boundClickListener) {
     layer._boundClickListener = true;
     layer.addEventListener('click', (e) => {
+      const interactiveEl = e.target.closest('.add-btn, .qty-minus, .qty-plus');
+      if (!interactiveEl) return;
+
+      // Verify element is physically within the visible content area
+      const contentEl = interactiveEl.closest('.menu-content');
+      if (contentEl) {
+        const cRect = contentEl.getBoundingClientRect();
+        const bRect = interactiveEl.getBoundingClientRect();
+        if (bRect.bottom < cRect.top - 2 || bRect.top > cRect.bottom + 2) {
+          return; // Scrolled out of the visible clip container
+        }
+      }
+
       const minusSpan = e.target.closest('.qty-minus');
       if (minusSpan) {
         e.stopPropagation();
