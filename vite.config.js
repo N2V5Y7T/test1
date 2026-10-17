@@ -117,6 +117,7 @@ function seoPlugin() {
         });
       }
 
+      noScriptHtml += `<div style="text-align: center; margin-top: 36px; padding: 20px 0;"><h2>Thank You</h2><p>The Nines</p></div>`;
       noScriptHtml += `</div></noscript>`;
 
       // Escape '<' as '\u003c' inside JSON-LD script block to prevent script breakout

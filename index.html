@@ -134,6 +134,66 @@
       transform: translate3d(-50%, -50%, 0);
     }
 
+    .menu-section.thank-you-section {
+      top: 50%;
+      left: 50%;
+      transform: translate3d(-50%, -50%, 0);
+      text-align: center;
+      pointer-events: none;
+      z-index: 12;
+      display: none;
+      padding: 0 24px;
+      width: 100%;
+      max-width: 414px;
+      will-change: transform, opacity;
+    }
+
+    .thank-you-header {
+      margin-bottom: 0;
+    }
+
+    .thank-you-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(34px, 8.5vw, 44px);
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #fff;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95), 0 4px 28px rgba(0, 0, 0, 0.8);
+    }
+
+    .thank-you-ornament {
+      color: #d68f67;
+      font-size: 13px;
+      letter-spacing: 0.25em;
+      margin: 0 auto 12px auto;
+      opacity: 0.85;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+    }
+    .thank-you-ornament::before,
+    .thank-you-ornament::after {
+      content: '';
+      display: inline-block;
+      width: 36px;
+      height: 1px;
+      background: rgba(214, 143, 103, 0.4);
+    }
+
+    .thank-you-subtitle {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 300;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: #ccc;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+    }
+
     /* Emergence animation layers (driven directly via JS translate3d for zero-reflow mobile scrolling) */
     .sec-header {
       text-align: center;

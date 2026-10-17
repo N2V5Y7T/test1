@@ -152,7 +152,8 @@ async function runAllVerification() {
     const tEntrance = await evaluate(`
       (async () => {
         window.scrollTo(0, ${entranceY});
-        await new Promise(r => setTimeout(r, 120));
+        if (window.__theNines && window.__theNines.easer) window.__theNines.easer.snap(${entranceY});
+        await new Promise(r => setTimeout(r, 150));
 
         const activeSec = document.querySelector('.menu-section:not([style*="display: none"])');
         const pointerEvents = activeSec ? window.getComputedStyle(activeSec).pointerEvents : null;

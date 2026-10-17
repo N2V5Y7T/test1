@@ -183,7 +183,9 @@ export function computeScrollLayout(sections, vh) {
     const p_covered_in_X = X_videoResumeScroll / scrubPx;
 
     const remaining_p = Math.max(0, 1.0 - holdP - p_covered_in_X);
-    const C_length = remaining_p * scrubPx;
+    const C_length = isLast
+      ? Math.max(remaining_p * scrubPx, 0.70 * vh)
+      : remaining_p * scrubPx;
 
     const J_length = isLast ? 0 : handoffPx;
 

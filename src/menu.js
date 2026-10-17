@@ -17,6 +17,7 @@ import { escapeHtml } from './utils.js';
 
 const _itemRegistry = new Map();
 let _scrimEl = null;
+let _thankYouEl = null;
 
 function closeOptionPicker() {
   const picker = document.getElementById('option-picker');
@@ -338,6 +339,20 @@ export function buildMenuDOM(layout) {
     sec._lastButtonsActive = null;
   });
 
+  const thankYouEl = document.createElement('div');
+  thankYouEl.className = 'menu-section thank-you-section';
+  thankYouEl.id = 'menu-sec-thank-you';
+  thankYouEl.innerHTML = `
+    <div class="sec-header thank-you-header">
+      <h2 class="thank-you-title">Thank You</h2>
+      <div class="thank-you-ornament" aria-hidden="true">✦</div>
+      <p class="thank-you-subtitle">The Nines</p>
+    </div>
+  `;
+  thankYouEl.style.display = 'none';
+  layer.appendChild(thankYouEl);
+  _thankYouEl = thankYouEl;
+
   if (!layer._boundClickListener) {
     layer._boundClickListener = true;
     layer.addEventListener('click', (e) => {
@@ -431,6 +446,9 @@ export function updateMenuState(state, layout, vh) {
         sec.domElement.style.display = 'none';
       }
     });
+    if (_thankYouEl && activeSec.index !== layout.length - 1) {
+      _thankYouEl.style.display = 'none';
+    }
     _lastActiveKey = activeSec.key;
   }
 
@@ -528,6 +546,34 @@ export function updateMenuState(state, layout, vh) {
     }
   }
 
+  const isLastSec = activeSec.index === layout.length - 1;
+  let thankYouProg = 0;
+
+  if (_thankYouEl) {
+    if (!isLastSec) {
+      if (_thankYouEl.style.display !== 'none') _thankYouEl.style.display = 'none';
+    } else {
+      // Emergence begins as the last dish on the menu disappears in Segment X,
+      // and completes smoothly in Segment C to hold at 100% opacity at the end of the menu.
+      if (state.segment === 'X' && state.exitProgress >= 0.82) {
+        thankYouProg = ((state.exitProgress - 0.82) / 0.18) * 0.25;
+      } else if (state.segment === 'C') {
+        const cNorm = Math.min(1, Math.max(0, state.segmentProgress / 0.38));
+        thankYouProg = 0.25 + 0.75 * cNorm;
+      }
+
+      if (thankYouProg > 0.005) {
+        const easedProg = thankYouProg * thankYouProg * (3 - 2 * thankYouProg);
+        const offsetY = (1 - easedProg) * vh * 0.10;
+        if (_thankYouEl.style.display !== 'block') _thankYouEl.style.display = 'block';
+        _thankYouEl.style.opacity = easedProg.toFixed(3);
+        _thankYouEl.style.transform = `translate3d(-50%, calc(-50% + ${offsetY.toFixed(1)}px), 0)`;
+      } else {
+        if (_thankYouEl.style.display !== 'none') _thankYouEl.style.display = 'none';
+      }
+    }
+  }
+
   if (_scrimEl) {
     let scrimOpacity = 0;
     if (activeSec.type === 'group-intro') {
@@ -535,7 +581,11 @@ export function updateMenuState(state, layout, vh) {
     } else {
       if (state.segment === 'A') scrimOpacity = state.entranceProgress;
       else if (state.segment === 'H') scrimOpacity = 1;
-      else if (state.segment === 'X') scrimOpacity = 1 - state.exitProgress;
+      else if (state.segment === 'X') {
+        scrimOpacity = Math.max(1 - state.exitProgress, 0.45 * thankYouProg);
+      } else if (state.segment === 'C' && isLastSec) {
+        scrimOpacity = 0.45 * thankYouProg;
+      }
     }
     _scrimEl.style.opacity = scrimOpacity.toFixed(3);
   }
