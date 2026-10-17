@@ -62,7 +62,7 @@ const subgroupMap = new Map();
 
 for (let i = 1; i < lines.length; i++) {
   const values = parseCSVLine(lines[i]);
-  const row = {};
+  const row = Object.create(null);
   headers.forEach((h, idx) => {
     row[h] = values[idx] || '';
   });

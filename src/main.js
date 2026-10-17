@@ -90,7 +90,15 @@ async function init() {
   navController = initNav(layout, loader, easer);
   initListUI();
 
-  window.__theNines = { layout, loader, easer, renderer, frameCache };
+  const isDebugOrLocal =
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' ||
+     window.location.hostname === '127.0.0.1' ||
+     window.location.search.includes('debug=1'));
+
+  if (isDebugOrLocal) {
+    window.__theNines = { layout, loader, easer, renderer, frameCache };
+  }
 
   // Re-measure heights once Google Fonts finish loading so custom font metrics never clip the last dish
   if (document.fonts && document.fonts.ready) {

@@ -21,7 +21,7 @@
 
 | Decision | Value |
 |---|---|
-| FFmpeg | ✅ `C:\Users\evele\AppData\Local\Microsoft\WinGet\Links\ffmpeg.exe` (v9.0.2) |
+| FFmpeg | ✅ `ffmpeg` (v9.0.2) |
 | Font combination | **Candidate A** — Playfair Display (400) + Inter (body) |
 | Hosting | **Cloudflare Pages** |
 | Estimated total | Show sum only — **no tax/GST mention** |
@@ -90,7 +90,7 @@
   - **Benchmark**: Small gestures respond in ~50ms (3 frames), wheel ticks in ~117ms (7 frames), with zero canvas blanking or black screens.
 
 ### Phase 10 — FOOD Intro Frames Restoration & Embedded Logo Analysis ✅ COMPLETE
-- **Reverted Frame-Skip Logic**: Fully removed the renderer cross-dissolve override from [`src/renderer.js`](file:///c:/Users/navjy/Documents/project_1/src/renderer.js) and restored standard boundary loading in [`src/frame-cache.js`](file:///c:/Users/navjy/Documents/project_1/src/frame-cache.js).
+- **Reverted Frame-Skip Logic**: Fully removed the renderer cross-dissolve override from [`src/renderer.js`](src/renderer.js) and restored standard boundary loading in [`src/frame-cache.js`](src/frame-cache.js).
 - **Verified Complete Frame Sequence**: Verified all 120 extracted frames (`frame0001.webp` through `frame0120.webp`) are 100% physically present on disk, correctly referenced in `manifest.json`, and advancing continuously 1-to-1 with user scroll.
 - **Embedded Logo Analysis & Inpainting Evaluation**:
   - Confirmed the duplicate emblem is baked directly into the video sequence (`frame0028.webp` through `frame0053.webp`) as an Art Deco title card over a forward tracking shot through a brick corridor into the dining room.
@@ -105,10 +105,10 @@
   - Preserved exactly 78 frames (`frame0001.webp` through `frame0078.webp`) + placeholder.
   - No frames before or including `frame0078.webp` were altered or deleted.
 - **Manifest & Config Updates**:
-  - Updated [`public/frames/manifest.json`](file:///c:/Users/navjy/Documents/project_1/public/frames/manifest.json) for `food`: `frameCount: 78`, `holdFrame: 39`, byte size updated to `5757542`.
-  - Updated [`src/config.js`](file:///c:/Users/navjy/Documents/project_1/src/config.js): calibrated `scrubLengthVh: 140` for the 78-frame sequence to maintain natural scroll scrub rate.
+  - Updated [`public/frames/manifest.json`](public/frames/manifest.json) for `food`: `frameCount: 78`, `holdFrame: 39`, byte size updated to `5757542`.
+  - Updated [`src/config.js`](src/config.js): calibrated `scrubLengthVh: 140` for the 78-frame sequence to maintain natural scroll scrub rate.
 - **Title Animation & Scroll Choreography**:
-  - Retuned title animation in [`src/scroll-map.js`](file:///c:/Users/navjy/Documents/project_1/src/scroll-map.js) for 78 frames:
+  - Retuned title animation in [`src/scroll-map.js`](src/scroll-map.js) for 78 frames:
     - $t \in [0, 0.22]$: Emerges smoothly from center as scroll begins
     - $t \in [0.22, 0.45]$: Glides upward at 100% opacity
     - $t \in [0.45, 0.70]$: Fades out smoothly while continuing upward
@@ -124,7 +124,7 @@
 ### Phase 12 — Sequential Non-Overlapping Choreography for FOOD Intro ✅ COMPLETE
 - **Choreography Redesign**:
   - Reverted to the full original 78 video frames (`frame0001.webp` through `frame0078.webp`) including the authentic brick corridor footage.
-  - Recalibrated the "FOOD" emergence and fade timing in [`src/scroll-map.js`](file:///C:/Users/navjy/OneDrive/Documents/project_1/src/scroll-map.js) and [`src/menu.js`](file:///C:/Users/navjy/OneDrive/Documents/project_1/src/menu.js):
+  - Recalibrated the "FOOD" emergence and fade timing in [`src/scroll-map.js`](src/scroll-map.js) and [`src/menu.js`](src/menu.js):
     - $t \in [0.00, 0.10]$ (scroll $0 \to 112\text{px}$, frames 0–8): "FOOD" emerges from center and glides upward smoothly over the clean dining table shot.
     - $t \in [0.10, 0.20]$ (scroll $112 \to 224\text{px}$, frames 8–15): "FOOD" sustains at 100% opacity as the camera approaches the staircase.
     - $t \in [0.20, 0.28]$ (scroll $224 \to 314\text{px}$, frames 15–22): "FOOD" fades out smoothly while rising.

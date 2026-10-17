@@ -3,6 +3,7 @@
  */
 
 import { acquireLock, releaseLock, registerOverlayCloseHandler } from './scroll-lock.js';
+import { escapeHtml } from './utils.js';
 
 let _activeSectionKey = null;
 let _renderedSectionKeys = '';
@@ -23,7 +24,7 @@ export function initNav(layout, loader, easer) {
       if (sec.groupKey && sec.groupKey !== currentGroup) {
         currentGroup = sec.groupKey;
         if (sec.type !== 'group-intro' && sec.groupLabel) {
-          html += `<div class="nav-group-header">${sec.groupLabel}</div>`;
+          html += `<div class="nav-group-header">${escapeHtml(sec.groupLabel)}</div>`;
         }
       }
 
@@ -32,7 +33,7 @@ export function initNav(layout, loader, easer) {
 
       if (sec.label) {
         const scrollTarget = isGroup ? sec.scrollStart : sec.H_start;
-        html += `<button class="${className}" data-scroll="${scrollTarget}" data-idx="${idx}" data-key="${sec.key}">${sec.label}</button>`;
+        html += `<button class="${className}" data-scroll="${scrollTarget}" data-idx="${idx}" data-key="${escapeHtml(sec.key)}">${escapeHtml(sec.label)}</button>`;
       }
     });
     linksContainer.innerHTML = html;
@@ -129,11 +130,11 @@ function buildContinuousBottomBar(bottomNav, layout) {
     lastGroupKey = s.groupKey;
 
     tabsParts.push(`
-      <button class="bottom-tab-btn" data-idx="${s.index}" data-key="${s.key}" data-group="${s.groupKey}">
-        ${s.label}
+      <button class="bottom-tab-btn" data-idx="${s.index}" data-key="${escapeHtml(s.key)}" data-group="${escapeHtml(s.groupKey)}">
+        ${escapeHtml(s.label)}
       </button>
     `);
-    dotsParts.push(`<span class="bottom-dot" data-key="${s.key}" data-group="${s.groupKey}"></span>`);
+    dotsParts.push(`<span class="bottom-dot" data-key="${escapeHtml(s.key)}" data-group="${escapeHtml(s.groupKey)}"></span>`);
   });
 
   bottomNav.innerHTML = `

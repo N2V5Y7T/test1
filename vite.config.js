@@ -2,6 +2,16 @@ import { defineConfig } from 'vite';
 import fs from 'fs';
 import path from 'path';
 
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 /**
  * Vite plugin to inject SEO metadata (JSON-LD) and a <noscript> fallback menu
  * generated from the menu.json file at build/dev time.
@@ -35,7 +45,7 @@ function seoPlugin() {
 
       if (menuData.groups) {
         menuData.groups.forEach(group => {
-          noScriptHtml += `<h2>${group.label}</h2>`;
+          noScriptHtml += `<h2>${escapeHtml(group.label)}</h2>`;
 
           if (group.sections) {
             group.sections.forEach(section => {
@@ -45,8 +55,8 @@ function seoPlugin() {
                 "hasMenuItem": []
               };
 
-              noScriptHtml += `<h3>${section.label}</h3>`;
-              if (section.note) noScriptHtml += `<p><em>${section.note}</em></p>`;
+              noScriptHtml += `<h3>${escapeHtml(section.label)}</h3>`;
+              if (section.note) noScriptHtml += `<p><em>${escapeHtml(section.note)}</em></p>`;
 
               const processItem = (item) => {
                 let price = item.price;
@@ -80,21 +90,21 @@ function seoPlugin() {
                 sectionSchema.hasMenuItem.push(itemSchema);
 
                 noScriptHtml += `<div>`;
-                noScriptHtml += `<strong>${item.name}</strong>`;
-                if (item.diet) noScriptHtml += ` (${item.diet})`;
+                noScriptHtml += `<strong>${escapeHtml(item.name)}</strong>`;
+                if (item.diet) noScriptHtml += ` (${escapeHtml(item.diet)})`;
                 if (price === 'seasonal') {
                   noScriptHtml += ` - Seasonal`;
                 } else if (price != null) {
-                  noScriptHtml += ` - INR ${price}`;
+                  noScriptHtml += ` - INR ${escapeHtml(price)}`;
                 }
-                if (desc) noScriptHtml += `<p>${desc}</p>`;
+                if (desc) noScriptHtml += `<p>${escapeHtml(desc)}</p>`;
                 noScriptHtml += `</div>`;
               };
 
               if (section.subgroups) {
                 section.subgroups.forEach(sg => {
                   const sgTitle = sg.subHeader || sg.label;
-                  if (sgTitle) noScriptHtml += `<h4>${sgTitle}</h4>`;
+                  if (sgTitle) noScriptHtml += `<h4>${escapeHtml(sgTitle)}</h4>`;
                   if (sg.items) sg.items.forEach(processItem);
                 });
               } else if (section.items) {
@@ -109,7 +119,9 @@ function seoPlugin() {
 
       noScriptHtml += `</div></noscript>`;
 
-      const jsonLdScript = `<script type="application/ld+json">\n${JSON.stringify(jsonLd, null, 2)}\n</script>`;
+      // Escape '<' as '\u003c' inside JSON-LD script block to prevent script breakout
+      const jsonLdString = JSON.stringify(jsonLd, null, 2).replace(/</g, '\\u003c');
+      const jsonLdScript = `<script type="application/ld+json">\n${jsonLdString}\n</script>`;
 
       let modifiedHtml = html.replace('</head>', `  ${jsonLdScript}\n</head>`);
       modifiedHtml = modifiedHtml.replace('<body>', `<body>\n  ${noScriptHtml}`);

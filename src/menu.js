@@ -13,6 +13,7 @@ import {
   getVariantQty,
 } from './list.js';
 import { acquireLock, releaseLock, registerOverlayCloseHandler } from './scroll-lock.js';
+import { escapeHtml } from './utils.js';
 
 const _itemRegistry = new Map();
 let _scrimEl = null;
@@ -59,30 +60,30 @@ function showOptionPicker(itemId) {
   const picker = document.createElement('div');
   picker.id = 'option-picker';
   picker.setAttribute('role', 'dialog');
-  picker.setAttribute('aria-label', `Choose options for ${item.name}`);
+  picker.setAttribute('aria-label', `Choose options for ${escapeHtml(item.name)}`);
 
   function buildOptionRowHtml(o) {
     const qty = getVariantQty(itemId, o.label);
     const inList = qty > 0;
     return `
-      <div class="picker-option-row ${inList ? 'in-list' : ''}" data-base-id="${itemId}" data-label="${o.label}">
+      <div class="picker-option-row ${inList ? 'in-list' : ''}" data-base-id="${escapeHtml(itemId)}" data-label="${escapeHtml(o.label)}">
         <div class="picker-option-info">
-          <span class="picker-option-label">${o.label}</span>
-          ${o.desc ? `<span class="picker-option-subdesc">${o.desc}</span>` : ''}
+          <span class="picker-option-label">${escapeHtml(o.label)}</span>
+          ${o.desc ? `<span class="picker-option-subdesc">${escapeHtml(o.desc)}</span>` : ''}
           <span class="picker-option-price">₹${Number(o.price).toLocaleString('en-IN')}</span>
         </div>
         <div class="picker-option-action">
           ${qty === 0 ? `
-            <button class="picker-add-btn" data-base-id="${itemId}" data-label="${o.label}" data-price="${o.price}" aria-label="Add ${o.label}">
+            <button class="picker-add-btn" data-base-id="${escapeHtml(itemId)}" data-label="${escapeHtml(o.label)}" data-price="${escapeHtml(o.price)}" aria-label="Add ${escapeHtml(o.label)}">
               ＋ Add
             </button>
           ` : `
             <div class="picker-stepper">
-              <button class="picker-step-btn picker-minus-btn" data-base-id="${itemId}" data-label="${o.label}" aria-label="Decrease quantity">
+              <button class="picker-step-btn picker-minus-btn" data-base-id="${escapeHtml(itemId)}" data-label="${escapeHtml(o.label)}" aria-label="Decrease quantity">
                 −
               </button>
-              <span class="picker-qty-num">${qty}</span>
-              <button class="picker-step-btn picker-plus-btn" data-base-id="${itemId}" data-label="${o.label}" data-price="${o.price}" aria-label="Increase quantity">
+              <span class="picker-qty-num">${escapeHtml(qty)}</span>
+              <button class="picker-step-btn picker-plus-btn" data-base-id="${escapeHtml(itemId)}" data-label="${escapeHtml(o.label)}" data-price="${escapeHtml(o.price)}" aria-label="Increase quantity">
                 ＋
               </button>
             </div>
@@ -95,8 +96,8 @@ function showOptionPicker(itemId) {
   picker.innerHTML = `
     <div class="picker-handle" title="Close"></div>
     <div class="picker-header">
-      <h3 class="picker-title">${item.name}</h3>
-      ${item.desc ? `<p class="picker-desc">${item.desc}</p>` : ''}
+      <h3 class="picker-title">${escapeHtml(item.name)}</h3>
+      ${item.desc ? `<p class="picker-desc">${escapeHtml(item.desc)}</p>` : ''}
     </div>
     <div class="picker-options">
       ${options.map(buildOptionRowHtml).join('')}
@@ -147,7 +148,8 @@ function showOptionPicker(itemId) {
   });
 
   function updateRow(baseId, label) {
-    const row = picker.querySelector(`.picker-option-row[data-label="${label}"]`);
+    const safeSelectorLabel = typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(label) : label;
+    const row = picker.querySelector(`.picker-option-row[data-label="${safeSelectorLabel}"]`);
     if (!row) return;
 
     const opt = options.find(o => o.label === label);
@@ -160,11 +162,11 @@ function showOptionPicker(itemId) {
       row.classList.add('in-list');
       actionContainer.innerHTML = `
         <div class="picker-stepper">
-          <button class="picker-step-btn picker-minus-btn" data-base-id="${baseId}" data-label="${label}" aria-label="Decrease quantity">
+          <button class="picker-step-btn picker-minus-btn" data-base-id="${escapeHtml(baseId)}" data-label="${escapeHtml(label)}" aria-label="Decrease quantity">
             −
           </button>
-          <span class="picker-qty-num">${qty}</span>
-          <button class="picker-step-btn picker-plus-btn" data-base-id="${baseId}" data-label="${label}" data-price="${opt.price}" aria-label="Increase quantity">
+          <span class="picker-qty-num">${escapeHtml(qty)}</span>
+          <button class="picker-step-btn picker-plus-btn" data-base-id="${escapeHtml(baseId)}" data-label="${escapeHtml(label)}" data-price="${escapeHtml(opt.price)}" aria-label="Increase quantity">
             ＋
           </button>
         </div>
@@ -172,7 +174,7 @@ function showOptionPicker(itemId) {
     } else {
       row.classList.remove('in-list');
       actionContainer.innerHTML = `
-        <button class="picker-add-btn" data-base-id="${baseId}" data-label="${label}" data-price="${opt.price}" aria-label="Add ${label}">
+        <button class="picker-add-btn" data-base-id="${escapeHtml(baseId)}" data-label="${escapeHtml(label)}" data-price="${escapeHtml(opt.price)}" aria-label="Add ${escapeHtml(label)}">
           ＋ Add
         </button>
       `;
@@ -187,7 +189,7 @@ function showOptionPicker(itemId) {
 function renderPriceBlock(item) {
   if (item.options && item.options.length > 0) {
     const chips = item.options
-      .map(o => `<span class="price-chip"><span class="chip-label">${o.label}</span><span class="chip-price">₹${Number(o.price).toLocaleString('en-IN')}</span></span>`)
+      .map(o => `<span class="price-chip"><span class="chip-label">${escapeHtml(o.label)}</span><span class="chip-price">₹${Number(o.price).toLocaleString('en-IN')}</span></span>`)
       .join('');
     return `<div class="price-chips">${chips}</div>`;
   }
@@ -226,17 +228,18 @@ function renderItem(item) {
   const dietDot = item.diet === 'veg'    ? '<span class="diet-dot veg" title="Vegetarian"></span>' :
                   item.diet === 'nonveg' ? '<span class="diet-dot nonveg" title="Non-Vegetarian"></span>' : '';
 
-  let descText = item.desc || '';
-  if (!descText && item.options) {
+  let descHtml = '';
+  if (item.desc) {
+    descHtml = `<div class="item-desc">${escapeHtml(item.desc)}</div>`;
+  } else if (item.options) {
     const optDescs = item.options
       .filter(o => o.desc)
-      .map(o => `<strong>${o.label}:</strong> ${o.desc}`);
+      .map(o => `<strong>${escapeHtml(o.label)}:</strong> ${escapeHtml(o.desc)}`);
     if (optDescs.length > 0) {
-      descText = optDescs.join('<br/>');
+      descHtml = `<div class="item-desc">${optDescs.join('<br/>')}</div>`;
     }
   }
-  const descHtml = descText ? `<div class="item-desc">${descText}</div>` : '';
-  const noteHtml = item.note ? `<div class="item-note">${item.note}</div>` : '';
+  const noteHtml = item.note ? `<div class="item-note">${escapeHtml(item.note)}</div>` : '';
 
   const options = getOptions(item);
   const hasMultipleOptions = options.length > 1;
@@ -245,16 +248,16 @@ function renderItem(item) {
 
   const actionBtnHtml = canAdd
     ? `<button class="add-btn"
-         data-id="${item.id}"
+         data-id="${escapeHtml(item.id)}"
          data-has-options="${hasMultipleOptions ? 'true' : 'false'}"
-         aria-label="Add ${item.name} to list">＋</button>`
+         aria-label="Add ${escapeHtml(item.name)} to list">＋</button>`
     : '';
 
   if (hasMultipleOptions || options.length === 1) {
     return `
-      <div class="menu-item has-options" id="item-${item.id}">
+      <div class="menu-item has-options" id="item-${escapeHtml(item.id)}">
         <div class="item-top-row">
-          <h4 class="item-name">${dietDot}${item.name}</h4>
+          <h4 class="item-name">${dietDot}${escapeHtml(item.name)}</h4>
         </div>
         ${noteHtml}
         ${descHtml}
@@ -267,10 +270,10 @@ function renderItem(item) {
   }
 
   return `
-    <div class="menu-item" id="item-${item.id}">
+    <div class="menu-item" id="item-${escapeHtml(item.id)}">
       <div class="item-header">
         <div class="item-name-wrap">
-          <h4 class="item-name">${dietDot}${item.name}</h4>
+          <h4 class="item-name">${dietDot}${escapeHtml(item.name)}</h4>
           ${noteHtml}
           ${descHtml}
         </div>
@@ -298,11 +301,11 @@ export function buildMenuDOM(layout) {
     el.id = `menu-sec-${sec.key}`;
 
     if (sec.type === 'group-intro') {
-      el.innerHTML = `<h1 class="group-title">${sec.label}</h1>`;
+      el.innerHTML = `<h1 class="group-title">${escapeHtml(sec.label)}</h1>`;
     } else {
       let html = `<div class="sec-header">`;
-      html += `<h2 class="section-title">${sec.label}</h2>`;
-      if (sec.note) html += `<p class="section-note">${sec.note}</p>`;
+      html += `<h2 class="section-title">${escapeHtml(sec.label)}</h2>`;
+      if (sec.note) html += `<p class="section-note">${escapeHtml(sec.note)}</p>`;
       html += `</div>`;
 
       html += `<div class="menu-content">`;
@@ -311,8 +314,8 @@ export function buildMenuDOM(layout) {
         sec.subgroups.forEach(sg => {
           const sgTitle = sg.subHeader || sg.label;
           html += `<div class="subgroup">`;
-          if (sgTitle) html += `<h3 class="subgroup-title">${sgTitle}</h3>`;
-          if (sg.note) html += `<p class="subgroup-note">${sg.note}</p>`;
+          if (sgTitle) html += `<h3 class="subgroup-title">${escapeHtml(sgTitle)}</h3>`;
+          if (sg.note) html += `<p class="subgroup-note">${escapeHtml(sg.note)}</p>`;
           html += `<div class="items-grid">${sg.items.map(renderItem).join('')}</div>`;
           html += `</div>`;
         });

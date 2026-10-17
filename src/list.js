@@ -6,6 +6,7 @@
  */
 
 import { acquireLock, releaseLock, registerOverlayCloseHandler } from './scroll-lock.js';
+import { escapeHtml } from './utils.js';
 
 const STORAGE_KEY = 'the_nines_my_list_v1';
 
@@ -50,6 +51,23 @@ function saveToStorage() {
   }
 }
 
+/**
+ * Strict variant price lookup.
+ * Returns numeric price if and only if label matches an authentic variant,
+ * otherwise returns null (no fallback to base item price).
+ */
+function lookupStrictVariantPrice(baseItem, label) {
+  if (!baseItem || !label || typeof label !== 'string') return null;
+  if (Array.isArray(baseItem.options)) {
+    const found = baseItem.options.find(o => o && o.label === label);
+    if (found && typeof found.price === 'number') return found.price;
+  }
+  if (label === '30ml' && typeof baseItem.pour30ml === 'number') return baseItem.pour30ml;
+  if (label === 'Glass' && typeof baseItem.glass === 'number') return baseItem.glass;
+  if (label === 'Bottle' && typeof baseItem.bottle === 'number') return baseItem.bottle;
+  return null;
+}
+
 export function restoreFromStorage() {
   if (typeof localStorage === 'undefined') return;
   try {
@@ -59,22 +77,33 @@ export function restoreFromStorage() {
     if (!Array.isArray(parsed)) return;
 
     parsed.forEach(record => {
-      if (!record || !record.id || !(record.qty > 0)) return;
+      if (!record || typeof record !== 'object' || !record.id || typeof record.id !== 'string') return;
+      const rawQty = parseInt(record.qty, 10);
+      if (isNaN(rawQty) || rawQty < 1) return;
+      // Clamp restored quantities to safe integers in [1, 99]
+      const safeQty = Math.min(99, Math.max(1, rawQty));
+
       if (record.variantLabel && record.baseId) {
+        if (typeof record.variantLabel !== 'string' || typeof record.baseId !== 'string') return;
         const baseItem = allItemsMap.get(record.baseId);
         if (!baseItem) return;
-        const variantPrice = lookupVariantPrice(baseItem, record.variantLabel);
-        if (variantPrice == null) return;
+
+        const variantPrice = lookupStrictVariantPrice(baseItem, record.variantLabel);
+        if (variantPrice == null) return; // Reject tampered variant
+
+        const expectedId = `${record.baseId}:${record.variantLabel}`;
+        if (record.id !== expectedId) return; // Reject tampered ID
+
         const variantItem = {
           ...baseItem,
-          id: record.id,
+          id: expectedId,
           name: `${baseItem.name} (${record.variantLabel})`,
           price: variantPrice,
         };
-        allItemsMap.set(record.id, variantItem);
-        selectedItems.set(record.id, {
+        allItemsMap.set(expectedId, variantItem);
+        selectedItems.set(expectedId, {
           item: variantItem,
-          qty: record.qty,
+          qty: safeQty,
           baseId: record.baseId,
           variantLabel: record.variantLabel,
         });
@@ -82,7 +111,7 @@ export function restoreFromStorage() {
       } else {
         const item = allItemsMap.get(record.id);
         if (!item) return;
-        selectedItems.set(record.id, { item, qty: record.qty, baseId: item.id, variantLabel: null });
+        selectedItems.set(record.id, { item, qty: safeQty, baseId: item.id, variantLabel: null });
         syncMenuButton(record.id);
       }
     });
@@ -93,23 +122,13 @@ export function restoreFromStorage() {
   }
 }
 
-function lookupVariantPrice(baseItem, label) {
-  if (baseItem.options) {
-    const found = baseItem.options.find(o => o.label === label);
-    if (found) return found.price;
-  }
-  if (label === '30ml' && baseItem.pour30ml != null) return baseItem.pour30ml;
-  if (label === 'Glass' && baseItem.glass != null) return baseItem.glass;
-  if (label === 'Bottle' && baseItem.bottle != null) return baseItem.bottle;
-  return getPriceNumber(baseItem);
-}
-
 /**
  * Find and update the menu's add-btn / qty-control for a given plain item id.
  */
 function syncMenuButton(id) {
   if (typeof document === 'undefined') return;
-  const btn = document.querySelector(`.add-btn[data-id="${id}"]`);
+  const safeSelectorId = typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(id) : id;
+  const btn = document.querySelector(`.add-btn[data-id="${safeSelectorId}"]`);
   if (!btn) return;
 
   if (btn.getAttribute('data-has-options') === 'true') {
@@ -124,15 +143,15 @@ function syncMenuButton(id) {
   if (qty === 0) {
     btn.className = 'add-btn';
     btn.innerHTML = '＋';
-    btn.setAttribute('aria-label', `Add ${baseItem ? baseItem.name : 'item'} to list`);
+    btn.setAttribute('aria-label', `Add ${baseItem ? escapeHtml(baseItem.name) : 'item'} to list`);
     return;
   }
 
   btn.className = 'add-btn qty-active';
   btn.innerHTML = `
-    <span class="qty-minus" data-id="${id}" aria-label="Decrease quantity">−</span>
-    <span class="qty-num">${qty}</span>
-    <span class="qty-plus"  data-id="${id}" aria-label="Increase quantity">＋</span>
+    <span class="qty-minus" data-id="${escapeHtml(id)}" aria-label="Decrease quantity">−</span>
+    <span class="qty-num">${escapeHtml(qty)}</span>
+    <span class="qty-plus"  data-id="${escapeHtml(id)}" aria-label="Increase quantity">＋</span>
   `;
 }
 
@@ -142,7 +161,8 @@ function syncMenuButton(id) {
  */
 function syncVariantMenuButton(baseId) {
   if (typeof document === 'undefined') return;
-  const btn = document.querySelector(`.add-btn[data-id="${baseId}"][data-has-options="true"]`);
+  const safeSelectorBaseId = typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(baseId) : baseId;
+  const btn = document.querySelector(`.add-btn[data-id="${safeSelectorBaseId}"][data-has-options="true"]`);
   if (!btn) return;
 
   let totalVariantQty = 0;
@@ -154,7 +174,7 @@ function syncVariantMenuButton(baseId) {
 
   if (totalVariantQty > 0) {
     btn.classList.add('added');
-    btn.innerHTML = `<span class="variant-count-badge">${totalVariantQty}</span>`;
+    btn.innerHTML = `<span class="variant-count-badge">${Number(totalVariantQty)}</span>`;
   } else {
     btn.classList.remove('added');
     btn.innerHTML = '＋';
@@ -337,16 +357,16 @@ export function renderDrawer() {
       : (item.price === 'seasonal' ? 'Seasonal' : '');
 
     html += `
-      <div class="list-item" data-id="${id}">
+      <div class="list-item" data-id="${escapeHtml(id)}">
         <div class="list-item-info">
-          <span class="list-item-name">${item.name}</span>
-          ${priceDisplay ? `<span class="list-item-unit-price">Unit: ${priceDisplay}</span>` : ''}
-          ${lineTotalDisplay ? `<span class="list-item-price">${lineTotalDisplay}</span>` : ''}
+          <span class="list-item-name">${escapeHtml(item.name)}</span>
+          ${priceDisplay ? `<span class="list-item-unit-price">Unit: ${escapeHtml(priceDisplay)}</span>` : ''}
+          ${lineTotalDisplay ? `<span class="list-item-price">${escapeHtml(lineTotalDisplay)}</span>` : ''}
         </div>
         <div class="list-item-qty-control">
-          <button class="list-qty-btn list-qty-minus" data-id="${id}" aria-label="Decrease quantity">−</button>
-          <span class="list-qty-num">${qty}</span>
-          <button class="list-qty-btn list-qty-plus"  data-id="${id}" aria-label="Increase quantity">＋</button>
+          <button class="list-qty-btn list-qty-minus" data-id="${escapeHtml(id)}" aria-label="Decrease quantity">−</button>
+          <span class="list-qty-num">${escapeHtml(qty)}</span>
+          <button class="list-qty-btn list-qty-plus"  data-id="${escapeHtml(id)}" aria-label="Increase quantity">＋</button>
         </div>
       </div>
     `;

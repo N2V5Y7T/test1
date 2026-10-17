@@ -56,7 +56,7 @@ export async function buildSectionConfig() {
 
   for (const group of menu.groups) {
     // Group intro video (e.g. food.mp4)
-    if (group.video && manifest[group.key]) {
+    if (group.video && Object.prototype.hasOwnProperty.call(manifest, group.key)) {
       const m = manifest[group.key];
       sections.push({
         key: group.key,
@@ -76,11 +76,11 @@ export async function buildSectionConfig() {
 
     // Regular sections in continuous order across all groups
     for (const sec of group.sections) {
-      const m = manifest[sec.key];
-      if (!m) {
+      if (!Object.prototype.hasOwnProperty.call(manifest, sec.key)) {
         console.warn(`[Config] No manifest entry for section: ${sec.key}`);
         continue;
       }
+      const m = manifest[sec.key];
 
       const holdP = sec.holdFrame != null
         ? sec.holdFrame / m.frameCount
