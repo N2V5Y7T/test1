@@ -234,7 +234,7 @@
         },
         {
           "key": "veg-starters",
-          "label": "To Began Veg",
+          "label": "To Begin Veg",
           "video": "veg-starters.mp4",
           "holdFrame": null,
           "scrubLengthVh": 200,
@@ -262,7 +262,7 @@
             },
             {
               "id": "sauteed-vegetable",
-              "name": "Sauteed Vegetable",
+              "name": "Sautéed Vegetable",
               "desc": "Exotic vegetable, mushrooms, olive oil, garlic, white wine and herb",
               "price": 499,
               "diet": "veg"
@@ -355,7 +355,7 @@
         },
         {
           "key": "nonveg-starters",
-          "label": "To Began Nonveg",
+          "label": "To Begin Non-Veg",
           "video": "nonveg-starters.mp4",
           "holdFrame": null,
           "scrubLengthVh": 220,
@@ -419,7 +419,7 @@
             },
             {
               "id": "chargrdil-prawn",
-              "name": "Chargrdil Prawn",
+              "name": "Chargrilled Prawn",
               "desc": "Deep water prawns marinated with dill leaves, cooked in clay oven with cucumber yogurt",
               "price": 959,
               "diet": "nonveg"
@@ -640,7 +640,7 @@
               "items": [
                 {
                   "id": "flamin-red-sushi",
-                  "name": "Flamin Red Sushi",
+                  "name": "Flamin' Red Sushi",
                   "desc": "Avocado, cucumber, carrot, tempura flakes, Cheetos, thousand island sauce",
                   "price": 799,
                   "diet": "veg"
@@ -728,7 +728,7 @@
             {
               "id": "pizza-verdure",
               "name": "Pizza Verdure",
-              "desc": "Oven roasted zucchini, spinach, mushroom, bell peppers, olives, jalapeno, mozzarella, basil pesto and parmesan",
+              "desc": "Oven roasted zucchini, spinach, mushroom, bell peppers, olives, jalapeño, mozzarella, basil pesto and parmesan",
               "price": 619,
               "diet": "veg"
             },
@@ -1315,7 +1315,7 @@
             },
             {
               "id": "zatar-pita-bread",
-              "name": "Zatar Pita Bread",
+              "name": "Za'atar Pita Bread",
               "price": 89,
               "diet": "veg"
             },
@@ -1608,14 +1608,14 @@
                 },
                 {
                   "id": "tikki-passion",
-                  "name": "Tikki Passion",
-                  "desc": "A bold tiki style cocktail combining juicy pineapple, tangy passion fruit, lime and Campari",
+                  "name": "Tiki Passion",
+                  "desc": "A bold Tiki style cocktail combining juicy pineapple, tangy passion fruit, lime and Campari",
                   "price": 779
                 }
               ]
             },
             {
-              "subHeader": "Liqueurs & Digestif",
+              "subHeader": "Liqueurs & Digestifs",
               "items": [
                 {
                   "id": "jagermeister-ice-cold-shot",
@@ -1631,7 +1631,7 @@
                 },
                 {
                   "id": "baileys-irish-cream",
-                  "name": "Bailey's Irish Cream",
+                  "name": "Baileys Irish Cream",
                   "pour30ml": 629,
                   "bottle": 14000
                 },
@@ -1847,7 +1847,7 @@
               ]
             },
             {
-              "subHeader": "Irish Whisky",
+              "subHeader": "Irish Whiskey",
               "items": [
                 {
                   "id": "jameson-black-barrel",
@@ -1863,7 +1863,7 @@
                 },
                 {
                   "id": "jameson-triple-distilled",
-                  "name": "Jameson Tripple Distilled",
+                  "name": "Jameson Triple Distilled",
                   "pour30ml": 539,
                   "bottle": 12000
                 },
@@ -1909,7 +1909,7 @@
                 },
                 {
                   "id": "kraken-black-spicy-rum-700ml",
-                  "name": "The Kraken Black Spicy Rum (700 ml)",
+                  "name": "The Kraken Black Spiced Rum (700 ml)",
                   "pour30ml": 889,
                   "bottle": 20000
                 },
@@ -1974,7 +1974,7 @@
                 },
                 {
                   "id": "dewars-18yo",
-                  "name": "Dewars 18 Y.O.",
+                  "name": "Dewar's 18 YO",
                   "pour30ml": 1479,
                   "bottle": 32000
                 },
@@ -1992,7 +1992,7 @@
                 },
                 {
                   "id": "dewars-15yo",
-                  "name": "Dewars 15 Y.O.",
+                  "name": "Dewar's 15 YO",
                   "pour30ml": 979,
                   "bottle": 21000
                 },
@@ -2022,13 +2022,13 @@
                 },
                 {
                   "id": "dewars-12yo",
-                  "name": "Dewars 12 Y.O.",
+                  "name": "Dewar's 12 YO",
                   "pour30ml": 749,
                   "bottle": 16500
                 },
                 {
                   "id": "jw-blonde",
-                  "name": "J&W Blonde",
+                  "name": "Johnnie Walker Blonde",
                   "pour30ml": 539,
                   "bottle": 12000
                 },
@@ -2069,7 +2069,7 @@
                 },
                 {
                   "id": "hendricks",
-                  "name": "Hendricks",
+                  "name": "Hendrick's",
                   "pour30ml": 849,
                   "bottle": 19000
                 },
@@ -2223,7 +2223,7 @@
                 },
                 {
                   "id": "don-julio-anejo",
-                  "name": "Don Julio Anejo",
+                  "name": "Don Julio Añejo",
                   "pour30ml": 1799,
                   "bottle": 40000
                 },
@@ -2247,13 +2247,13 @@
                 },
                 {
                   "id": "patron-reposado",
-                  "name": "Patron Reposado",
+                  "name": "Patrón Reposado",
                   "pour30ml": 1269,
                   "bottle": 28000
                 },
                 {
                   "id": "patron-anejo",
-                  "name": "Patron Anejo",
+                  "name": "Patrón Añejo",
                   "pour30ml": 1799,
                   "bottle": 41000
                 },
@@ -2265,7 +2265,7 @@
                 },
                 {
                   "id": "patron-silver",
-                  "name": "Patron Silver",
+                  "name": "Patrón Silver",
                   "pour30ml": 1049,
                   "bottle": 24000
                 },
@@ -2371,14 +2371,14 @@
                 },
                 {
                   "id": "chandon-rose",
-                  "name": "Chandon Rose",
+                  "name": "Chandon Rosé",
                   "glass": 949,
                   "bottle": 4750
                 }
               ]
             },
             {
-              "subHeader": "Rose Wine",
+              "subHeader": "Rosé Wine",
               "items": [
                 {
                   "id": "stonecross-pinotage-rose",
@@ -2616,7 +2616,7 @@
             },
             {
               "id": "coca-cola",
-              "name": "Coca Cola",
+              "name": "Coca-Cola",
               "price": 159
             }
           ]
