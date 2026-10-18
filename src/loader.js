@@ -1,15 +1,18 @@
 /**
- * The Nines — Smart Loading Queue & Memory Window Manager (Phase 5)
+ * The Nines — Centered ~48% Preload Window & Scroll-First Parallel Navigation
  *
- * Priority rules:
- *   CRITICAL  — destination section during a nav jump (intermediate loads suppressed)
- *   HIGH      — current section
- *   PRELOAD   — next 1-2 sections ahead
- *   EVICT     — sections more than 3 indices away are unloaded from decoded RAM
- *               to prevent mobile Safari/Chrome tab crashes (HTTP cache retains WebPs)
+ * Implements a centered ~48% preload window (9 of 19 sections) ordered in
+ * concentric rings outward from the user's active section.
+ *
+ * During navigation jumps:
+ * - Does NOT unload active or intermediate sections.
+ * - Deprioritizes distant sections to 'low'.
+ * - Immediately warms destination at 'high' priority.
+ * - Suppresses full-resolution intermediate bulk downloads during the tween.
  */
 
-const MAX_ACTIVE_SECTION_DISTANCE = 3;
+const PRELOAD_WINDOW_RATIO = 0.48;
+const EVICT_HYSTERESIS = 1;
 
 export class SmartLoader {
   /**
@@ -17,117 +20,183 @@ export class SmartLoader {
    * @param {Array} layout — from computeScrollLayout
    */
   constructor(frameCache, layout) {
-    this._cache    = frameCache;
-    this._layout   = layout;
-    this._queued   = new Set();
-    this._lastIdx  = -1;
-    this._jumping  = false;
+    this._cache = frameCache;
+    this._layout = layout;
+    this._queued = new Map(); // key -> priority ('high' | 'medium' | 'low')
+    this._lastIdx = -1;
+    this._lastEvictIdx = -1;
+    this._jumping = false;
+    this._scrollDir = 1;
+    this._scrollVelocity = 0;
+    this._lastScrollY = 0;
+    this._lastScrollTime = typeof performance !== 'undefined' ? performance.now() : 0;
 
-    // Preload all 19 tiny 130B placeholder.webp images (~2.5KB total) immediately
+    // Level 1: Preload tiny blurred placeholders immediately on startup
     this._cache.preloadPlaceholders(layout);
+    // Pre-warm anchor frames across all sections in the background
+    this._cache.preloadAnchorFrames(layout);
   }
 
   setLayout(layout) {
     this._layout = layout;
   }
 
-  /**
-   * Called on every scroll tick with the current scroll state.
-   */
-  advance(state, isTweening = false) {
-    // Do not trigger intermediate section downloads while flying across sections in a nav jump
-    if (isTweening || this._jumping) return;
+  getCenteredWindowBounds(centerIdx, extraLookahead = 0) {
+    const total = this._layout.length;
+    if (total === 0) return [0, 0];
+    const baseWindowSize = Math.max(5, Math.round(total * PRELOAD_WINDOW_RATIO));
+    const halfRadius = Math.floor(baseWindowSize / 2);
 
-    const idx = state.sectionIndex;
+    let start = centerIdx - halfRadius;
+    let end = centerIdx + halfRadius;
 
-    // Always ensure current section is loading at HIGH priority
-    this._ensureLoaded(idx, 'high');
+    if (extraLookahead > 0) end += extraLookahead;
+    else if (extraLookahead < 0) start += extraLookahead;
 
-    // Ensure next section is preloading ahead of time
-    if (idx + 1 < this._layout.length) {
-      this._ensureLoaded(idx + 1, 'low');
+    // Slide window away from edges while keeping baseWindowSize
+    if (start < 0) {
+      end = Math.min(total - 1, end + (-start));
+      start = 0;
+    }
+    if (end >= total) {
+      start = Math.max(0, start - (end - (total - 1)));
+      end = total - 1;
     }
 
-    // Preload section after next once user is past 25% of A or in H/X/C/J
-    const nearEnd = state.segment === 'H' || state.segment === 'X'
-      || state.segment === 'C' || state.segment === 'J'
-      || (state.segment === 'A' && state.segmentProgress > 0.25);
+    return [Math.max(0, start), Math.min(total - 1, end)];
+  }
 
-    if (nearEnd && idx + 2 < this._layout.length) {
-      this._ensureLoaded(idx + 2, 'low');
-    }
+  _updateCenteredWindow(centerIdx, extraLookahead = 0) {
+    if (centerIdx < 0 || centerIdx >= this._layout.length) return;
+    const [winStart, winEnd] = this.getCenteredWindowBounds(centerIdx, extraLookahead);
 
-    // When active section changes, evict distant sections from decoded RAM
-    if (idx !== this._lastIdx) {
-      this._lastIdx = idx;
-      this._evictDistantSections(idx);
+    // 1. Center section at high priority
+    this._ensureLoaded(centerIdx, 'high');
+
+    // 2. Loop outward in concentric rings, prioritized by scroll direction
+    const maxRadius = Math.max(centerIdx - winStart, winEnd - centerIdx);
+    for (let d = 1; d <= maxRadius; d++) {
+      const prio = d === 1 ? 'high' : (d === 2 ? 'medium' : 'low');
+      const ahead = this._scrollDir >= 0 ? centerIdx + d : centerIdx - d;
+      const behind = this._scrollDir >= 0 ? centerIdx - d : centerIdx + d;
+
+      if (ahead >= winStart && ahead <= winEnd) {
+        this._ensureLoaded(ahead, prio);
+      }
+      if (behind >= winStart && behind <= winEnd) {
+        this._ensureLoaded(behind, prio);
+      }
     }
   }
 
-  /**
-   * Nav jump: immediately promote the destination to CRITICAL priority,
-   * abort distant loads, and suppress intermediate section loads until tween finishes.
-   */
-  jumpTo(destIdx) {
-    const dest = this._layout[destIdx];
-    if (!dest) return;
+  _evictOutsideWindow(centerIdx) {
+    if (centerIdx < 0 || centerIdx >= this._layout.length) return;
+    const [winStart, winEnd] = this.getCenteredWindowBounds(centerIdx);
+    const safeStart = winStart - EVICT_HYSTERESIS;
+    const safeEnd = winEnd + EVICT_HYSTERESIS;
 
-    this._jumping = true;
-
-    // Abort/unload sections far from destination
-    for (const key of [...this._queued]) {
+    for (const [key] of this._queued) {
       const secIdx = this._layout.findIndex(s => s.key === key);
-      if (secIdx >= 0 && Math.abs(secIdx - destIdx) > 2) {
+      if (secIdx >= 0 && (secIdx < safeStart || secIdx > safeEnd)) {
         this._cache.unloadSection(key);
         this._queued.delete(key);
       }
     }
-
-    // Force-start destination at high priority (prioritizing holdFrame first)
-    this._queued.delete(dest.key);
-    this._ensureLoaded(destIdx, 'high');
-    if (dest.holdFrame != null) {
-      this._cache.prioritizeWindow(dest.key, dest.holdFrame, 1);
-    }
-
-    // Preload adjacent neighbors
-    if (destIdx - 1 >= 0)                  this._ensureLoaded(destIdx - 1, 'low');
-    if (destIdx + 1 < this._layout.length) this._ensureLoaded(destIdx + 1, 'low');
   }
 
-  finishJump() {
+  advance(state, isTweening = false, scrollY = 0) {
+    const now = typeof performance !== 'undefined' ? performance.now() : 0;
+    const dt = Math.max(1, now - this._lastScrollTime);
+    if (scrollY !== this._lastScrollY) {
+      this._scrollDir = scrollY >= this._lastScrollY ? 1 : -1;
+      this._scrollVelocity = Math.abs(scrollY - this._lastScrollY) / dt;
+      this._lastScrollY = scrollY;
+      this._lastScrollTime = now;
+    }
+
+    // When tweening, let intermediate sections render from previews/anchors without spawning full-res bulk loads
+    if (isTweening || this._jumping) {
+      return;
+    }
+
+    const idx = state.sectionIndex;
+    this._updateCenteredWindow(idx);
+
+    if (idx !== this._lastEvictIdx) {
+      this._lastEvictIdx = idx;
+      this._evictOutsideWindow(idx);
+    }
+  }
+
+  jumpTo(destIdx, currentIdx = -1) {
+    if (destIdx < 0 || destIdx >= this._layout.length) return;
+    const dest = this._layout[destIdx];
+    if (!dest) return;
+
+    this._jumping = true;
+    const cur = currentIdx >= 0 ? currentIdx : (this._lastIdx >= 0 ? this._lastIdx : 0);
+    this._scrollDir = destIdx >= cur ? 1 : -1;
+
+    // Non-destructive: do NOT unload active or intermediate sections!
+    // Deprioritize sections outside destination window to 'low'
+    const [destStart, destEnd] = this.getCenteredWindowBounds(destIdx);
+    for (const [key] of this._queued) {
+      const secIdx = this._layout.findIndex(s => s.key === key);
+      if (secIdx >= 0 && (secIdx < destStart || secIdx > destEnd)) {
+        const secState = this._cache._sections.get(key);
+        if (secState) secState.priority = 'low';
+        this._queued.set(key, 'low');
+      }
+    }
+
+    // Immediately queue destination at 'high' priority, prioritizing holdFrame and frame 0
+    this._ensureLoaded(destIdx, 'high');
+    if (dest.holdFrame != null) {
+      this._cache.prioritizeWindow(dest.key, dest.holdFrame, this._scrollDir);
+    } else {
+      this._cache.prioritizeWindow(dest.key, 0, this._scrollDir);
+    }
+
+    // Queue centered ~48% window around destIdx
+    this._updateCenteredWindow(destIdx);
+  }
+
+  finishJump(settledIdx = null) {
     this._jumping = false;
+    const center = settledIdx != null ? settledIdx : (this._lastIdx >= 0 ? this._lastIdx : 0);
+    this._lastIdx = center;
+    this._lastEvictIdx = center;
+    this._updateCenteredWindow(center);
+    this._evictOutsideWindow(center);
   }
 
   getProgress(key) {
     return this._cache.getProgress(key);
   }
 
-  _evictDistantSections(centerIdx) {
-    for (const key of [...this._queued]) {
-      const secIdx = this._layout.findIndex(s => s.key === key);
-      if (secIdx >= 0 && Math.abs(secIdx - centerIdx) > MAX_ACTIVE_SECTION_DISTANCE) {
-        this._cache.unloadSection(key);
-        this._queued.delete(key);
-      }
-    }
-  }
-
   _ensureLoaded(idx, priority) {
     if (idx < 0 || idx >= this._layout.length) return;
     const sec = this._layout[idx];
-    if (this._queued.has(sec.key)) {
-      if (priority === 'high') {
+    const existingPrio = this._queued.get(sec.key);
+
+    if (existingPrio) {
+      if (
+        (priority === 'high' && existingPrio !== 'high') ||
+        (priority === 'medium' && existingPrio === 'low')
+      ) {
         const state = this._cache._sections.get(sec.key);
-        if (state && state.priority !== 'high') {
-          state.priority = 'high';
-          this._cache.prioritizeWindow(sec.key, sec.holdFrame || 0, 1);
+        if (state) {
+          state.priority = priority;
+          if (priority === 'high') {
+            this._cache.prioritizeWindow(sec.key, sec.holdFrame || 0, this._scrollDir);
+          }
         }
+        this._queued.set(sec.key, priority);
       }
       return;
     }
 
-    this._queued.add(sec.key);
+    this._queued.set(sec.key, priority);
     this._cache.loadSection(sec.key, sec.framePath, sec.frameCount, priority, sec.holdFrame);
   }
 }

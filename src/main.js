@@ -67,7 +67,15 @@ async function init() {
 
   // Set up canvas & core systems
   canvas = document.getElementById('main-canvas');
-  frameCache = new FrameCache();
+  frameCache = new FrameCache((loadedSectionKey) => {
+    if (!lastState || !renderer) return;
+    const activeKey = lastState.section?.key;
+    const nextKey = lastState.crossDissolve?.nextSection?.key;
+    if (loadedSectionKey === activeKey || loadedSectionKey === nextKey) {
+      renderer.invalidate();
+      renderer.render(lastState, true);
+    }
+  });
   loader = new SmartLoader(frameCache, layout);
   easer  = new ScrollEaser();
   renderer = new Renderer(canvas, frameCache);
@@ -198,7 +206,7 @@ function tick() {
   renderer.render(state);
   updateMenuState(state, layout, viewportHeight);
   updateBottomNav(state, layout);
-  loader.advance(state, isTweening);
+  loader.advance(state, isTweening, scrollY);
 
   const totalScroll = layout.length > 0 ? layout[layout.length - 1].scrollEnd : 0;
   debugHUD.update(state, scrollY, totalScroll);

@@ -2,11 +2,12 @@
  * The Nines — Canvas Renderer
  *
  * Draws video frames to the main canvas, handles cross-dissolve,
- * uses velocity-aware sub-frame blending (skipping double-draw during fast mobile flicks),
- * and draws pre-blurred 130B placeholder.webp without slow ctx.filter calls.
+ * section-accurate preview fallbacks, 140ms progressive sharpening cross-fade,
+ * and velocity-aware sub-frame blending.
  */
 
 const MAX_DPR = 2;
+const PROGRESSIVE_SHARPEN_MS = 140;
 
 export class Renderer {
   /**
@@ -22,9 +23,21 @@ export class Renderer {
     this._lastDrawnFloat = -1;
     this._lastValidImage = null;
 
+    // Track preview transitions for 140ms progressive sharpening
+    // sectionKey -> { startTime: number, previewImg: Image|Canvas, sharpImg: Image, duration: number }
+    this._previewTransitions = new Map();
+    this._lastResolvedPreview = new Map(); // sectionKey -> boolean
+
     this.resize(true);
-    // Note: window resize is managed centrally by main.js so mobile URL-bar height
-    // shifts never clear or reallocate the canvas backing store mid-scroll.
+  }
+
+  /**
+   * Invalidates last drawn state so the next render() call draws immediately.
+   */
+  invalidate() {
+    this._lastDrawnKey = null;
+    this._lastDrawnFloat = -1;
+    this._lastDrawnFrame = -1;
   }
 
   /**
@@ -37,13 +50,11 @@ export class Renderer {
     const rect = this.canvas.getBoundingClientRect();
 
     const w = Math.round(rect.width || window.innerWidth);
-    // Allocate to the maximum screen height (covers URL bar retraction without buffer reallocation)
     const screenH = typeof window !== 'undefined' && window.screen && window.screen.height
       ? window.screen.height
       : window.innerHeight;
     const h = Math.round(Math.max(rect.height || window.innerHeight, screenH));
 
-    // Ignore mobile browser toolbar show/hide height-only changes (<180px)
     if (
       !force &&
       this._lastWidth === w &&
@@ -70,9 +81,7 @@ export class Renderer {
     this._displayWidth = w;
     this._displayHeight = h;
 
-    this._lastDrawnKey = null;
-    this._lastDrawnFrame = -1;
-    this._lastDrawnFloat = -1;
+    this.invalidate();
     if (this._lastValidImage) {
       this.ctx.globalAlpha = 1;
       this._drawImageCover(this._lastValidImage);
@@ -80,9 +89,44 @@ export class Renderer {
   }
 
   /**
+   * Resolves visual asset for section at targetIndex in priority order:
+   * 1. Exact frame
+   * 2. Nearest frame within 24 frames
+   * 3. Section's Level 1 blurred preview
+   * 4. Section anchor fallback (frame 0 or holdFrame)
+   * 5. Last valid canvas image
+   */
+  _resolveSectionVisual(section, targetIndex) {
+    if (!section) {
+      return { image: this._lastValidImage, isPreview: false };
+    }
+    const key = section.key;
+
+    // 1. Exact frame
+    const exact = this.frameCache.getFrame(key, targetIndex);
+    if (exact) return { image: exact, isPreview: false };
+
+    // 2. Nearest frame within 24 frames
+    const near = this.frameCache.nearestFrame(key, targetIndex, 24);
+    if (near) return { image: near, isPreview: false };
+
+    // 3. Section's Level 1 blurred preview
+    const preview = this.frameCache.getPlaceholder(key);
+    if (preview) return { image: preview, isPreview: true };
+
+    // 4. Section anchor fallback
+    const anchor = this.frameCache.nearestFrame(key, targetIndex, Infinity);
+    if (anchor) return { image: anchor, isPreview: false };
+
+    // 5. Fallback
+    return { image: this._lastValidImage, isPreview: false };
+  }
+
+  /**
    * Render the current scroll state to the canvas.
    *
    * @param {object} state - from getScrollState()
+   * @param {boolean} force - whether to force redraw
    */
   render(state, force = false) {
     const { section, crossDissolve } = state;
@@ -110,8 +154,8 @@ export class Renderer {
   }
 
   /**
-   * Draw a frame from a section with velocity-aware sub-frame continuous blending.
-   * Eliminates ghosting and double-exposure by locking to a single sharp frame when stationary.
+   * Draw a frame from a section with velocity-aware sub-frame continuous blending
+   * and 140ms progressive sharpening cross-fade from blurred preview to sharp frame.
    */
   _renderFrame(sectionKey, frameFloat, section, force = false) {
     const count = section.frameCount;
@@ -120,31 +164,73 @@ export class Renderer {
     const ceilIndex = Math.min(count - 1, floorIndex + 1);
     const blendAlpha = clampedFloat - floorIndex;
 
-    if (!force && this._lastDrawnKey === sectionKey && Math.abs(this._lastDrawnFloat - clampedFloat) < 0.004) {
-      return;
-    }
-
     const frameDelta = this._lastDrawnKey === sectionKey && this._lastDrawnFloat >= 0
       ? Math.abs(clampedFloat - this._lastDrawnFloat)
       : 0;
 
-    // When stationary / settled (frameDelta <= 0.04), lock to the nearest clean integer frame
     const primaryIndex = (frameDelta <= 0.04 && blendAlpha >= 0.5) ? ceilIndex : floorIndex;
-    const imgPrimaryExact = this.frameCache.getFrame(sectionKey, primaryIndex);
-    const imgPrimary = imgPrimaryExact || this.frameCache.nearestFrame(sectionKey, primaryIndex);
+    const visual = this._resolveSectionVisual(section, primaryIndex);
 
-    if (!imgPrimary) {
+    // Detect transition from preview to sharp frame for 140ms progressive sharpening
+    const wasPreview = this._lastResolvedPreview.get(sectionKey) === true;
+    if (wasPreview && !visual.isPreview && visual.image) {
+      const prevPlaceholder = this.frameCache.getPlaceholder(sectionKey) || this._lastValidImage;
+      if (prevPlaceholder && prevPlaceholder !== visual.image) {
+        this._previewTransitions.set(sectionKey, {
+          startTime: performance.now(),
+          previewImg: prevPlaceholder,
+          sharpImg: visual.image,
+          duration: PROGRESSIVE_SHARPEN_MS,
+        });
+      }
+    }
+    this._lastResolvedPreview.set(sectionKey, visual.isPreview);
+
+    const activeTransition = this._previewTransitions.get(sectionKey);
+    const now = performance.now();
+    const hasActiveTransition = activeTransition && !visual.isPreview && (now - activeTransition.startTime < activeTransition.duration);
+
+    if (!force && !hasActiveTransition && this._lastDrawnKey === sectionKey && Math.abs(this._lastDrawnFloat - clampedFloat) < 0.004) {
+      return;
+    }
+
+    if (!visual.image) {
       this._drawPlaceholder(section);
       return;
     }
 
-    this.ctx.globalAlpha = 1;
-    this._drawImageCover(imgPrimary);
-    this._lastValidImage = imgPrimary;
+    // Draw active transition or direct image
+    if (hasActiveTransition) {
+      const elapsed = now - activeTransition.startTime;
+      const progress = Math.min(1, elapsed / activeTransition.duration);
 
-    // Optical blend: only blend adjacent frames during active moderate scrubbing.
-    // When stationary (frameDelta <= 0.04), never double-draw so the image is 100% sharp and crisp.
-    if (frameDelta > 0.04 && frameDelta < 0.65 && blendAlpha > 0.04 && blendAlpha < 0.96 && ceilIndex !== floorIndex) {
+      // Base blurred preview
+      this.ctx.globalAlpha = 1;
+      this._drawImageCover(activeTransition.previewImg);
+
+      // Incoming sharp frame
+      this.ctx.globalAlpha = progress;
+      this._drawImageCover(visual.image);
+      this.ctx.globalAlpha = 1;
+      this._lastValidImage = visual.image;
+    } else {
+      if (activeTransition) {
+        this._previewTransitions.delete(sectionKey);
+      }
+      this.ctx.globalAlpha = 1;
+      this._drawImageCover(visual.image);
+      this._lastValidImage = visual.image;
+    }
+
+    // Optical blend: only blend adjacent frames during active moderate scrubbing
+    if (
+      !visual.isPreview &&
+      frameDelta > 0.04 &&
+      frameDelta < 0.65 &&
+      blendAlpha > 0.04 &&
+      blendAlpha < 0.96 &&
+      ceilIndex !== floorIndex
+    ) {
       const imgCeil = this.frameCache.getFrame(sectionKey, ceilIndex);
       if (imgCeil) {
         this.ctx.globalAlpha = blendAlpha;
@@ -159,8 +245,7 @@ export class Renderer {
   }
 
   /**
-   * Draw the section's pre-blurred 20x36 placeholder.webp (130 bytes)
-   * using hardware-accelerated bilinear scaling (zero ctx.filter overhead).
+   * Draw the section's pre-rendered 90x160 blurred preview or fallback background.
    */
   _drawPlaceholder(section) {
     if (section) {
@@ -189,34 +274,30 @@ export class Renderer {
   _renderCrossDissolve(keyA, frameFloatA, keyB, frameFloatB, progress, secA, secB) {
     const floorA = Math.floor(Math.max(0, frameFloatA));
     const floorB = Math.floor(Math.max(0, frameFloatB));
-    const imgA = this.frameCache.nearestFrame(keyA, floorA)
-      || (secA && this.frameCache.getPlaceholder(secA.key))
-      || this._lastValidImage;
-    const imgB = this.frameCache.nearestFrame(keyB, floorB)
-      || (secB && this.frameCache.getPlaceholder(secB.key));
 
-    if (imgA) {
+    const visualA = this._resolveSectionVisual(secA, floorA);
+    const visualB = this._resolveSectionVisual(secB, floorB);
+
+    if (visualA.image) {
       this.ctx.globalAlpha = 1;
-      this._drawImageCover(imgA);
-      this._lastValidImage = imgA;
+      this._drawImageCover(visualA.image);
+      this._lastValidImage = visualA.image;
     } else {
       this.ctx.fillStyle = '#0a0a0a';
       this.ctx.fillRect(0, 0, this._displayWidth, this._displayHeight);
     }
 
-    if (imgB && progress > 0) {
+    if (visualB.image && progress > 0) {
       const alpha = Math.max(0, Math.min(1, progress));
       this.ctx.globalAlpha = alpha;
-      this._drawImageCover(imgB);
+      this._drawImageCover(visualB.image);
       this.ctx.globalAlpha = 1;
       if (progress >= 0.5) {
-        this._lastValidImage = imgB;
+        this._lastValidImage = visualB.image;
       }
     }
 
-    this._lastDrawnKey = null;
-    this._lastDrawnFloat = -1;
-    this._lastDrawnFrame = -1;
+    this.invalidate();
   }
 
   /**
@@ -225,8 +306,8 @@ export class Renderer {
   _drawImageCover(img) {
     const cw = this._displayWidth;
     const ch = this._displayHeight;
-    const iw = img.naturalWidth || img.width;
-    const ih = img.naturalHeight || img.height;
+    const iw = img.naturalWidth || img.videoWidth || img.width;
+    const ih = img.naturalHeight || img.videoHeight || img.height;
     if (!iw || !ih) return;
 
     const canvasRatio = cw / ch;

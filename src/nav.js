@@ -4,6 +4,7 @@
 
 import { acquireLock, releaseLock, registerOverlayCloseHandler } from './scroll-lock.js';
 import { escapeHtml } from './utils.js';
+import { computeAdaptiveDuration } from './scroll-easer.js';
 
 let _activeSectionKey = null;
 let _renderedSectionKeys = '';
@@ -66,15 +67,28 @@ export function initNav(layout, loader, easer) {
     if (!sec) return;
     const targetScroll = sec.type === 'group-intro' ? sec.scrollStart : sec.H_start;
 
-    if (loader) loader.jumpTo(destIdx);
+    const currentY = easer && easer.isTweening ? easer._display : window.scrollY;
+    let currentIdx = 0;
+    for (let i = 0; i < currentLayout.length; i++) {
+      const s = currentLayout[i];
+      if (currentY >= s.scrollStart && currentY < s.scrollEnd) {
+        currentIdx = i;
+        break;
+      }
+    }
+
+    if (loader) loader.jumpTo(destIdx, currentIdx);
+
+    const dist = Math.abs(targetScroll - currentY);
+    const duration = computeAdaptiveDuration(dist);
 
     if (easer) {
-      easer.tweenTo(targetScroll, 780, () => {
-        if (loader) loader.finishJump();
+      easer.tweenTo(targetScroll, duration, () => {
+        if (loader) loader.finishJump(destIdx);
       });
     } else {
       window.scrollTo({ top: targetScroll, behavior: 'smooth' });
-      if (loader) setTimeout(() => loader.finishJump(), 800);
+      if (loader) setTimeout(() => loader.finishJump(destIdx), duration);
     }
   }
 

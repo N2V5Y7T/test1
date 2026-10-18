@@ -1,19 +1,30 @@
 /**
- * The Nines — Frame Cache & Memory Manager
+ * The Nines — Frame Cache & 3-Tier Session Asset Manager
  *
- * Manages loading, caching, and memory eviction of section frame images.
- * Uses a hybrid Keyframe + Coarse-to-Fine + Sequential load order so both
- * initial scrubbing and nav-jumps into Hold (holdFrame) are instant and smooth.
+ * Tier 1: Session Downloaded Asset Cache (_sessionBlobs Map, capped at 90 MB)
+ *         Retains compressed WebP blobs as Object URLs for the entire session.
+ * Tier 2: Bounded Decoded Asset Cache (_sections Map)
+ *         Stores decoded Image bitmaps for the active preload window.
+ * Tier 3: Active Render Window (prioritizeWindow)
+ *         Interleaves frames in scroll direction with strict concurrency limits.
+ *
+ * Level 1 Previews:
+ *         Pre-rendered 90x160 blurred canvas previews for all 19 sections.
+ * Anchor Frames:
+ *         Pre-warmed frame 0 and holdFrame across all sections.
  */
 
-const MAX_CONCURRENT_LOADS = 6;
+const MAX_ANCHOR_WORKERS = 3;
+const MAX_CONCURRENT_HIGH = 10;
+const MAX_CONCURRENT_MEDIUM = 6;
+const MAX_CONCURRENT_LOW = 3;
+const MAX_GLOBAL_WORKERS = 14;
+const SESSION_CACHE_MAX_BYTES = 90 * 1024 * 1024; // 90 MB
 
-/**
- * Builds an intelligent loading order:
- * 1. Anchor frames first: frame 0, holdFrame (for instant nav jump), and last frame
- * 2. Coarse pass (every 6th frame) so fast mobile scrolling never hits a wall of unloaded frames
- * 3. Sequential pass to fill all adjacent frames for sub-frame blending
- */
+function pad(n) {
+  return String(n + 1).padStart(4, '0'); // frames are 1-indexed on disk
+}
+
 function buildSmartOrder(count, holdFrame = null) {
   const seen = new Set();
   const order = [];
@@ -33,17 +44,17 @@ function buildSmartOrder(count, holdFrame = null) {
   }
   push(count - 1);
 
-  // 2. First 12 frames sequentially for immediate entrance smoothness
+  // 2. First 12 frames sequentially
   for (let i = 0; i < Math.min(12, count); i++) {
     push(i);
   }
 
-  // 3. Coarse-to-fine pass across the entire section (every 6th frame)
+  // 3. Coarse-to-fine pass (every 6th frame)
   for (let i = 0; i < count; i += 6) {
     push(i);
   }
 
-  // 4. Fill all remaining frames sequentially
+  // 4. Fill all remaining frames
   for (let i = 0; i < count; i++) {
     push(i);
   }
@@ -51,17 +62,49 @@ function buildSmartOrder(count, holdFrame = null) {
   return order;
 }
 
-function pad(n) {
-  return String(n + 1).padStart(4, '0');  // frames are 1-indexed on disk
+function createSmoothBlurredPreview(img) {
+  if (typeof document === 'undefined') return img;
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = 90;
+    canvas.height = 160;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return img;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    if ('filter' in ctx) {
+      ctx.filter = 'blur(6px)';
+    }
+    // Draw with slight overshoot to eliminate transparent border from blur filter
+    ctx.drawImage(img, -8, -8, 106, 176);
+    return canvas;
+  } catch (_) {
+    return img;
+  }
 }
 
 export class FrameCache {
-  constructor() {
-    // sectionKey → { images: Map<frameIdx, Image>, loading: boolean, abortController, loadedCount }
+  constructor(onFrameLoaded = null) {
+    this.onFrameLoaded = onFrameLoaded;
+
+    // sectionKey -> { key, framePath, frameCount, holdFrame, images: Map<frameIdx, Image>, inFlight: Set<frameIdx>, queue: number[], loading: boolean, loadedCount: number, activeWorkers: number, priority: string, abortController: AbortController }
     this._sections = new Map();
-    // sectionKey → Image (tiny 130-byte pre-blurred placeholder.webp)
+
+    // sectionKey -> 90x160 blurred offscreen canvas preview
     this._placeholders = new Map();
+
+    // sectionKey -> Map<frameIdx, Image> (pre-warmed anchor frames)
+    this._anchors = new Map();
+
+    // Tier 1: url -> { blobUrl, size, key, frameIdx, lastUsed }
+    this._sessionBlobs = new Map();
+    this._sessionBlobsSize = 0;
+    this._inFlightDownloads = new Map(); // url -> Promise<string>
+    this.sessionCacheHits = 0;
+
+    this._globalActiveWorkers = 0;
     this._frameDecodedListeners = [];
+    this._anchorLoadingStarted = false;
   }
 
   onFrameDecoded(callback) {
@@ -69,22 +112,24 @@ export class FrameCache {
   }
 
   _notifyFrameDecoded(key, frameIdx) {
+    if (this.onFrameLoaded) {
+      try { this.onFrameLoaded(key, frameIdx); } catch (_) {}
+    }
     for (let i = 0; i < this._frameDecodedListeners.length; i++) {
-      this._frameDecodedListeners[i](key, frameIdx);
+      try { this._frameDecodedListeners[i](key, frameIdx); } catch (_) {}
     }
   }
 
-  /**
-   * Preload tiny 130-byte placeholder.webp files for all sections (~2.5KB total)
-   * so there is NEVER a black canvas frame during fast scroll or nav jumps.
-   */
   preloadPlaceholders(layout) {
+    if (!layout) return;
     for (const sec of layout) {
       if (this._placeholders.has(sec.key)) continue;
       const img = new Image();
       img.decoding = 'async';
       img.onload = () => {
-        this._placeholders.set(sec.key, img);
+        const preview = createSmoothBlurredPreview(img);
+        this._placeholders.set(sec.key, preview);
+        this._notifyFrameDecoded(sec.key, -1);
       };
       img.src = `${sec.framePath}placeholder.webp`;
     }
@@ -94,19 +139,141 @@ export class FrameCache {
     return this._placeholders.get(key) || null;
   }
 
-  /**
-   * Start loading frames for a section.
-   *
-   * @param {string} key - section key
-   * @param {string} framePath - e.g. './frames/first-course/'
-   * @param {number} frameCount - total frames
-   * @param {string} priority - 'high' | 'low'
-   * @param {number|null} holdFrame - section hold frame index
-   * @returns {object} section state
-   */
+  preloadAnchorFrames(layout) {
+    if (!layout || this._anchorLoadingStarted) return;
+    this._anchorLoadingStarted = true;
+
+    const anchorTasks = [];
+    for (const sec of layout) {
+      if (!this._anchors.has(sec.key)) {
+        this._anchors.set(sec.key, new Map());
+      }
+      const hold = sec.holdFrame != null ? sec.holdFrame : Math.floor(sec.frameCount / 2);
+      anchorTasks.push({ sec, frameIdx: 0 });
+      anchorTasks.push({ sec, frameIdx: hold });
+    }
+
+    let activeAnchorWorkers = 0;
+    const pumpAnchors = () => {
+      while (activeAnchorWorkers < MAX_ANCHOR_WORKERS && anchorTasks.length > 0) {
+        const task = anchorTasks.shift();
+        const anchorMap = this._anchors.get(task.sec.key);
+        if (anchorMap && anchorMap.has(task.frameIdx)) continue;
+
+        activeAnchorWorkers++;
+        const url = `${task.sec.framePath}frame${pad(task.frameIdx)}.webp`;
+        this._acquireFrameImage(url, task.sec.key, task.frameIdx, 'low')
+          .then(img => {
+            if (img && anchorMap) {
+              anchorMap.set(task.frameIdx, img);
+              this._notifyFrameDecoded(task.sec.key, task.frameIdx);
+            }
+          })
+          .catch(() => {})
+          .finally(() => {
+            activeAnchorWorkers--;
+            pumpAnchors();
+          });
+      }
+    };
+    pumpAnchors();
+  }
+
+  getAnchor(key, frameIdx) {
+    const anchorMap = this._anchors.get(key);
+    if (!anchorMap || anchorMap.size === 0) return null;
+    if (anchorMap.has(frameIdx)) return anchorMap.get(frameIdx);
+    let closest = null;
+    let minD = Infinity;
+    for (const [idx, img] of anchorMap) {
+      const d = Math.abs(idx - frameIdx);
+      if (d < minD) {
+        minD = d;
+        closest = img;
+      }
+    }
+    return closest;
+  }
+
+  _enforceSessionBlobCap() {
+    if (this._sessionBlobsSize <= SESSION_CACHE_MAX_BYTES) return;
+    const entries = Array.from(this._sessionBlobs.entries()).sort(
+      (a, b) => a[1].lastUsed - b[1].lastUsed
+    );
+    for (const [url, item] of entries) {
+      if (this._sessionBlobsSize <= SESSION_CACHE_MAX_BYTES) break;
+      if (item.frameIdx === 0) continue; // Retain initial anchor frame
+      try { URL.revokeObjectURL(item.blobUrl); } catch (_) {}
+      this._sessionBlobsSize -= item.size;
+      this._sessionBlobs.delete(url);
+    }
+  }
+
+  async _acquireFrameImage(url, sectionKey, frameIdx, priority = 'high', signal = null) {
+    // 1. Session Blob Cache hit
+    if (this._sessionBlobs.has(url)) {
+      this.sessionCacheHits++;
+      const cached = this._sessionBlobs.get(url);
+      cached.lastUsed = performance.now();
+      return this._decodeImageFromUrl(cached.blobUrl);
+    }
+
+    // 2. In-flight download deduplication
+    let downloadPromise = this._inFlightDownloads.get(url);
+    if (!downloadPromise) {
+      downloadPromise = (async () => {
+        try {
+          const fetchOpts = { cache: 'force-cache' };
+          if (signal) fetchOpts.signal = signal;
+          const res = await fetch(url, fetchOpts);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const blob = await res.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          this._sessionBlobs.set(url, {
+            blobUrl,
+            size: blob.size,
+            key: sectionKey,
+            frameIdx,
+            lastUsed: performance.now()
+          });
+          this._sessionBlobsSize += blob.size;
+          this._enforceSessionBlobCap();
+          return blobUrl;
+        } finally {
+          this._inFlightDownloads.delete(url);
+        }
+      })();
+      this._inFlightDownloads.set(url, downloadPromise);
+    }
+
+    const blobUrl = await downloadPromise;
+    return this._decodeImageFromUrl(blobUrl);
+  }
+
+  _decodeImageFromUrl(src) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.decoding = 'async';
+      img.onload = () => {
+        if (typeof img.decode === 'function') {
+          img.decode().then(() => resolve(img)).catch(() => resolve(img));
+        } else {
+          resolve(img);
+        }
+      };
+      img.onerror = reject;
+      img.src = src;
+    });
+  }
+
   loadSection(key, framePath, frameCount, priority = 'high', holdFrame = null) {
     if (this._sections.has(key)) {
-      return this._sections.get(key);
+      const state = this._sections.get(key);
+      if (priority === 'high' && state.priority !== 'high') {
+        state.priority = 'high';
+        this._pump(state);
+      }
+      return state;
     }
 
     const ac = new AbortController();
@@ -137,9 +304,15 @@ export class FrameCache {
   _pump(state) {
     if (state.abortController.signal.aborted) return;
 
-    const maxWorkers = state.priority === 'high' ? MAX_CONCURRENT_LOADS : 3;
+    const maxWorkersForPriority = state.priority === 'high'
+      ? MAX_CONCURRENT_HIGH
+      : (state.priority === 'medium' ? MAX_CONCURRENT_MEDIUM : MAX_CONCURRENT_LOW);
 
-    while (state.activeWorkers < maxWorkers && state.queue.length > 0) {
+    while (
+      state.activeWorkers < maxWorkersForPriority &&
+      this._globalActiveWorkers < MAX_GLOBAL_WORKERS &&
+      state.queue.length > 0
+    ) {
       const frameIdx = state.queue.shift();
 
       if (state.images.has(frameIdx) || state.inFlight.has(frameIdx)) {
@@ -148,14 +321,15 @@ export class FrameCache {
 
       state.inFlight.add(frameIdx);
       state.activeWorkers++;
+      this._globalActiveWorkers++;
 
-      const img = new Image();
-      img.decoding = 'async';
-      if (state.priority === 'high') img.fetchPriority = 'high';
+      const url = `${state.framePath}frame${pad(frameIdx)}.webp`;
+      const signal = state.abortController.signal;
 
       const onSlotFree = () => {
         state.inFlight.delete(frameIdx);
         state.activeWorkers--;
+        this._globalActiveWorkers--;
         if (state.queue.length === 0 && state.activeWorkers === 0) {
           state.loading = false;
         } else {
@@ -163,34 +337,18 @@ export class FrameCache {
         }
       };
 
-      img.onload = () => {
-        if (state.abortController.signal.aborted) {
+      this._acquireFrameImage(url, state.key, frameIdx, state.priority, signal)
+        .then(img => {
+          if (!signal.aborted && img) {
+            state.images.set(frameIdx, img);
+            state.loadedCount++;
+            this._notifyFrameDecoded(state.key, frameIdx);
+          }
+        })
+        .catch(() => {})
+        .finally(() => {
           onSlotFree();
-          return;
-        }
-
-        if (typeof img.decode === 'function') {
-          img.decode().catch(() => {}).finally(() => {
-            if (!state.abortController.signal.aborted) {
-              state.images.set(frameIdx, img);
-              state.loadedCount++;
-              this._notifyFrameDecoded(state.key, frameIdx);
-            }
-            onSlotFree();
-          });
-        } else {
-          state.images.set(frameIdx, img);
-          state.loadedCount++;
-          this._notifyFrameDecoded(state.key, frameIdx);
-          onSlotFree();
-        }
-      };
-
-      img.onerror = () => {
-        onSlotFree();
-      };
-
-      img.src = `${state.framePath}frame${pad(frameIdx)}.webp`;
+        });
     }
 
     if (state.queue.length === 0 && state.activeWorkers === 0) {
@@ -198,12 +356,9 @@ export class FrameCache {
     }
   }
 
-  /**
-   * Prioritize a window of upcoming frames in the direction of scroll.
-   */
   prioritizeWindow(key, currentFrameIndex, direction = 1) {
     const state = this._sections.get(key);
-    if (!state || !state.queue || state.queue.length === 0 || state.abortController.signal.aborted) return;
+    if (!state || !state.queue || state.abortController.signal.aborted) return;
 
     const count = state.frameCount;
     const center = Math.max(0, Math.min(count - 1, Math.round(currentFrameIndex || 0)));
@@ -214,33 +369,21 @@ export class FrameCache {
     state._lastPrioritizedCenter = center;
 
     const priorityFrames = [];
-    const spanAhead = 18;
-    const spanBehind = 6;
+    const spanAhead = 24;
+    const spanBehind = 14;
 
-    if (direction >= 0) {
-      for (let i = 0; i <= spanAhead; i++) {
-        const idx = center + i;
-        if (idx < count && !state.images.has(idx) && !state.inFlight.has(idx)) {
-          priorityFrames.push(idx);
+    const maxSpan = Math.max(spanAhead, spanBehind);
+    for (let i = 0; i <= maxSpan; i++) {
+      if (i <= spanAhead) {
+        const aheadIdx = direction >= 0 ? center + i : center - i;
+        if (aheadIdx >= 0 && aheadIdx < count && !state.images.has(aheadIdx) && !state.inFlight.has(aheadIdx)) {
+          priorityFrames.push(aheadIdx);
         }
       }
-      for (let i = 1; i <= spanBehind; i++) {
-        const idx = center - i;
-        if (idx >= 0 && !state.images.has(idx) && !state.inFlight.has(idx)) {
-          priorityFrames.push(idx);
-        }
-      }
-    } else {
-      for (let i = 0; i <= spanAhead; i++) {
-        const idx = center - i;
-        if (idx >= 0 && !state.images.has(idx) && !state.inFlight.has(idx)) {
-          priorityFrames.push(idx);
-        }
-      }
-      for (let i = 1; i <= spanBehind; i++) {
-        const idx = center + i;
-        if (idx < count && !state.images.has(idx) && !state.inFlight.has(idx)) {
-          priorityFrames.push(idx);
+      if (i > 0 && i <= spanBehind) {
+        const behindIdx = direction >= 0 ? center - i : center + i;
+        if (behindIdx >= 0 && behindIdx < count && !state.images.has(behindIdx) && !state.inFlight.has(behindIdx)) {
+          priorityFrames.push(behindIdx);
         }
       }
     }
@@ -258,6 +401,8 @@ export class FrameCache {
     if (state) {
       state.abortController.abort();
       state.loading = false;
+      this._globalActiveWorkers = Math.max(0, this._globalActiveWorkers - state.activeWorkers);
+      state.activeWorkers = 0;
       state.inFlight.clear();
       state.queue = [];
     }
@@ -279,33 +424,36 @@ export class FrameCache {
     return state.images.get(frameIndex) || null;
   }
 
-  nearestFrame(key, frameIndex) {
+  nearestFrame(key, frameIndex, maxDistance = Infinity) {
     const state = this._sections.get(key);
-    if (!state || state.loadedCount === 0) return null;
-
-    const count = state.frameCount;
+    const count = state ? state.frameCount : 96;
     const target = Math.max(0, Math.min(count - 1, Math.round(Number(frameIndex) || 0)));
 
-    if (state.images.has(target)) return state.images.get(target);
-
-    for (let d = 1; d < count; d++) {
-      const left = target - d;
-      const right = target + d;
-      if (left >= 0 && state.images.has(left)) return state.images.get(left);
-      if (right < count && state.images.has(right)) return state.images.get(right);
+    if (state && state.images.has(target)) {
+      return state.images.get(target);
     }
 
-    for (const img of state.images.values()) {
-      if (img) return img;
+    if (state && state.loadedCount > 0) {
+      const limit = Math.min(count, maxDistance);
+      for (let d = 1; d <= limit; d++) {
+        const left = target - d;
+        const right = target + d;
+        if (left >= 0 && state.images.has(left)) return state.images.get(left);
+        if (right < count && state.images.has(right)) return state.images.get(right);
+      }
+      if (maxDistance === Infinity) {
+        for (const img of state.images.values()) {
+          if (img) return img;
+        }
+      }
     }
+
+    const anchor = this.getAnchor(key, target);
+    if (anchor) return anchor;
 
     return null;
   }
 
-  /**
-   * Unload a section's decoded Image objects so mobile memory stays bounded.
-   * Compressed WebP files remain in the browser HTTP cache for fast reload.
-   */
   unloadSection(key) {
     const state = this._sections.get(key);
     if (!state) return;
