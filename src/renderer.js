@@ -47,9 +47,12 @@ export class Renderer {
    */
   resize(force = false) {
     const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
-    const rect = this.canvas.getBoundingClientRect();
-
-    const w = Math.round(rect.width || window.innerWidth);
+    const viewportEl = this.canvas.parentElement || this.canvas;
+    const rect = viewportEl.getBoundingClientRect();
+    const rawW = window.innerWidth < 768
+      ? window.innerWidth
+      : (rect.width || window.innerWidth);
+    const w = Math.max(1, Math.round(rawW));
     const screenH = typeof window !== 'undefined' && window.screen && window.screen.height
       ? window.screen.height
       : window.innerHeight;
@@ -74,6 +77,8 @@ export class Renderer {
 
     this.canvas.width = Math.round(w * dpr);
     this.canvas.height = Math.round(h * dpr);
+    this.canvas.style.width = `${w}px`;
+    this.canvas.style.height = `${h}px`;
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     this.ctx.imageSmoothingEnabled = true;
     this.ctx.imageSmoothingQuality = 'medium';
@@ -129,6 +134,10 @@ export class Renderer {
    * @param {boolean} force - whether to force redraw
    */
   render(state, force = false) {
+    if (window.innerWidth < 768 && Math.abs(Math.round(window.innerWidth) - this._displayWidth) > 1) {
+      this.resize(true);
+    }
+
     const { section, crossDissolve } = state;
     const key = section.key;
     const frameFloat = state.frameFloat !== undefined ? state.frameFloat : state.frameIndex;

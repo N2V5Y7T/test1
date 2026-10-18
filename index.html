@@ -22,6 +22,10 @@
     html {
       background: #0a0a0a;
       -webkit-text-size-adjust: 100%;
+      overflow-x: hidden;
+      width: 100%;
+      max-width: 100%;
+      overscroll-behavior-x: none;
     }
 
     body {
@@ -29,9 +33,14 @@
       color: #fff;
       font-family: 'Inter', system-ui, sans-serif;
       margin: 0;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
       min-height: 100vh;
       min-height: 100lvh;
       overscroll-behavior-y: none;
+      overscroll-behavior-x: none;
+      touch-action: pan-y;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -747,9 +756,9 @@
       overscroll-behavior: contain;
       overscroll-behavior-y: contain;
     }
-    .left-drawer { left: 0; transform: translate3d(-100%, 0, 0); }
-    .right-drawer { right: 0; transform: translate3d(100%, 0, 0); }
-    .drawer.open { transform: translate3d(0, 0, 0); }
+    .left-drawer { left: 0; transform: translate3d(-100%, 0, 0); visibility: hidden; pointer-events: none; }
+    .right-drawer { right: 0; transform: translate3d(100%, 0, 0); visibility: hidden; pointer-events: none; }
+    .drawer.open { transform: translate3d(0, 0, 0); visibility: visible; pointer-events: auto; }
 
     .drawer-header {
       display: flex; justify-content: space-between; align-items: center;
@@ -829,22 +838,18 @@
       font-size: 12px; color: #888; text-align: center;
     }
 
-    /* ── Desktop / wide viewport: center the 9:16 frame ── */
-    @media (min-aspect-ratio: 9/16) {
+    /* ── Desktop / wide viewport ONLY (never phones): center the 9:16 frame ── */
+    @media (min-width: 768px) and (min-aspect-ratio: 9/16) {
       #canvas-viewport,
       #top-nav,
-      #bottom-nav {
-        left: 50% !important;
-        transform: translate3d(-50%, 0, 0) !important;
-        width: calc(100vh * 9 / 16) !important;
-        width: calc(100dvh * 9 / 16) !important;
-      }
-
+      #bottom-nav,
       #menu-layer {
-        left: 50%;
-        transform: translate3d(-50%, 0, 0);
-        width: calc(100vh * 9 / 16);
-        width: calc(100dvh * 9 / 16);
+        left: 0 !important;
+        right: 0 !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        transform: none !important;
+        width: calc(100vh * 9 / 16) !important;
       }
 
       body::before,
@@ -853,7 +858,6 @@
         position: fixed;
         top: 0; bottom: 0;
         width: calc((100vw - (100vh * 9 / 16)) / 2);
-        width: calc((100vw - (100dvh * 9 / 16)) / 2);
         background: #0a0a0a;
         z-index: -1;
       }

@@ -17,7 +17,7 @@ async function runRegressionTests() {
     '--no-sandbox',
     '--disable-dev-shm-usage',
     '--window-size=414,896',
-    'http://localhost:5173/'
+    'http://127.0.0.1:5173/'
   ]);
 
   browser.on('error', err => {
@@ -67,6 +67,7 @@ async function runRegressionTests() {
   await new Promise(r => ws.onopen = r);
   await send('Runtime.enable');
   await send('Page.enable');
+  await send('Page.navigate', { url: 'http://127.0.0.1:5173/' });
 
   // Wait for initial render
   await sleep(2000);
@@ -95,6 +96,15 @@ async function runRegressionTests() {
   }
 
   try {
+    // Wait for page and nav elements to load
+    for (let i = 0; i < 50; i++) {
+      try {
+        const isReady = await evaluate(`!!document.getElementById('nav-list-btn')`);
+        if (isReady) break;
+      } catch (e) {}
+      await sleep(150);
+    }
+
     // Scroll page down a bit first so savedScrollY > 0
     await evaluate(`
       window.scrollTo(0, 1200);

@@ -17,7 +17,7 @@ async function runAllVerification() {
     '--no-sandbox',
     '--disable-dev-shm-usage',
     '--window-size=414,896',
-    'http://localhost:5173/'
+    'http://127.0.0.1:5173/'
   ]);
 
   browser.on('error', err => {

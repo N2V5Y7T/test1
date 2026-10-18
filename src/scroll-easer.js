@@ -120,6 +120,7 @@ export class ScrollEaser {
   }
 
   tick(realScrollY) {
+    const clampedScrollY = Math.max(0, realScrollY);
     const now = typeof performance !== 'undefined' ? performance.now() : 0;
     const rawDt = Math.max(1, now - this._lastTime);
     const dt = Math.min(64, rawDt);
@@ -148,14 +149,14 @@ export class ScrollEaser {
     }
 
     if (this._reduced) {
-      this._display = realScrollY;
-      return realScrollY;
+      this._display = clampedScrollY;
+      return clampedScrollY;
     }
 
-    const delta = realScrollY - this._display;
+    const delta = clampedScrollY - this._display;
     if (Math.abs(delta) < SNAP_THRESHOLD) {
-      this._display = realScrollY;
-      return realScrollY;
+      this._display = clampedScrollY;
+      return clampedScrollY;
     }
 
     // Frame-rate independent exponential smoothing
