@@ -5,7 +5,7 @@
  * scroll listener → frame loading → canvas rendering → debug HUD.
  */
 
-import { buildSectionConfig, computeScrollLayout } from './config.js';
+import { buildSectionConfig, computeScrollLayout, filterSectionsForPureVeg } from './config.js';
 import { getScrollState } from './scroll-map.js';
 import { FrameCache } from './frame-cache.js';
 import { SmartLoader } from './loader.js';
@@ -14,11 +14,14 @@ import { Renderer } from './renderer.js';
 import { DebugHUD } from './debug-hud.js';
 
 import { buildMenuDOM, measureMenuHeights, updateMenuState } from './menu.js';
-import { initListUI } from './list.js';
+import { initListUI, syncAllMenuButtons } from './list.js';
 import { initNav, updateBottomNav } from './nav.js';
 import { isScrollLocked, getLockedScrollY, onLockChange } from './scroll-lock.js';
 
 // ── Global state ────────────────────────────────────────────────
+let masterSections = [];
+let isPureVeg = false;
+let vegToggleTransitionId = 0;
 let layout = [];
 let frameCache;
 let loader;
@@ -34,6 +37,96 @@ let lastScrollY = -1;
 let viewportHeight = window.innerHeight;
 let viewportWidth = window.innerWidth;
 let lastState = null;
+
+function applyFilteredLayoutAtSection(targetKey, holdRatio = 0, wasAtTop = false) {
+  const activeSections = filterSectionsForPureVeg(masterSections, isPureVeg);
+  layout = computeScrollLayout(activeSections, viewportHeight);
+  buildMenuDOM(layout);
+  refreshLayoutHeights();
+  syncAllMenuButtons();
+
+  const targetSec = layout.find(s => s.key === targetKey) || layout[0];
+  let newScrollY = 0;
+  if (wasAtTop || !targetSec || targetSec.type === 'group-intro') {
+    newScrollY = wasAtTop ? 0 : (targetSec ? targetSec.scrollStart : 0);
+  } else {
+    const offsetInHold = holdRatio > 0
+      ? Math.max(16, Math.round(holdRatio * targetSec.H_length))
+      : 16;
+    newScrollY = Math.min(targetSec.H_end - 4, Math.ceil(targetSec.H_start + offsetInHold));
+  }
+
+  if (easer) easer.snap(newScrollY);
+  window.scrollTo(0, newScrollY);
+  if (loader && targetSec) loader.finishJump(targetSec.index);
+  if (renderer) renderer.invalidate();
+  lastScrollY = -1;
+  onScroll();
+}
+
+function setPureVegMode(enabled) {
+  isPureVeg = Boolean(enabled);
+  const myTransitionId = ++vegToggleTransitionId;
+
+  const toggleBtn = document.getElementById('pure-veg-toggle');
+  if (toggleBtn) {
+    toggleBtn.classList.toggle('active', isPureVeg);
+    toggleBtn.setAttribute('aria-checked', isPureVeg ? 'true' : 'false');
+  }
+
+  const wasAtTop = window.scrollY < 40;
+  const prevSec = lastState?.section || layout[0];
+  const prevKey = prevSec?.key || 'food';
+  const prevIdx = lastState?.sectionIndex ?? 0;
+
+  // Check if user is turning Pure Veg ON while currently on (or dissolving into) a 100% non-veg section
+  const NON_VEG_TO_VEG_MAP = {
+    'nonveg-starters': 'veg-starters',
+    'nonveg-mains': 'veg-mains',
+  };
+  const pairedVegKey = isPureVeg ? NON_VEG_TO_VEG_MAP[prevKey] : null;
+
+  if (pairedVegKey && easer) {
+    // PHASE 1: Smoothly scroll from "To Begin Non-Veg" -> "To Begin Veg" (or "All Together Non-Veg" -> "All Together Veg")
+    // BEFORE removing the non-veg section from `layout`, so the video & menu scroll naturally instead of popping!
+    const vegSecInCurrentLayout = layout.find(s => s.key === pairedVegKey);
+    if (vegSecInCurrentLayout) {
+      const targetScrollInCurrent = Math.min(
+        vegSecInCurrentLayout.H_end - 4,
+        Math.ceil(vegSecInCurrentLayout.H_start + 16)
+      );
+      const currentY = easer.isTweening ? easer._display : window.scrollY;
+      const distancePx = Math.abs(targetScrollInCurrent - currentY);
+      const durationMs = Math.max(560, Math.min(950, Math.round(380 + Math.sqrt(distancePx) * 5.2)));
+
+      if (loader) loader.jumpTo(vegSecInCurrentLayout.index, prevIdx);
+
+      easer.tweenTo(targetScrollInCurrent, durationMs, () => {
+        if (myTransitionId !== vegToggleTransitionId) return;
+        // PHASE 2: Now that we have smoothly scrolled into and landed on "To Begin Veg" (at H_start + 16),
+        // silently rebuild the 17-section Pure Veg layout anchored at the exact same spot in "To Begin Veg"!
+        applyFilteredLayoutAtSection(pairedVegKey, 0, false);
+      });
+      return;
+    }
+  }
+
+  // For all other sections (which remain in the menu in both modes):
+  // Softly cross-fade the menu layer while keeping the current section's video frame steady
+  const menuLayer = document.getElementById('menu-layer');
+  if (menuLayer && !wasAtTop && prevSec?.type === 'section') {
+    menuLayer.classList.add('veg-filtering-fade');
+    setTimeout(() => {
+      if (myTransitionId !== vegToggleTransitionId) return;
+      applyFilteredLayoutAtSection(prevKey, 0, wasAtTop);
+      requestAnimationFrame(() => {
+        menuLayer.classList.remove('veg-filtering-fade');
+      });
+    }, 150);
+  } else {
+    applyFilteredLayoutAtSection(prevKey, 0, wasAtTop);
+  }
+}
 
 function refreshLayoutHeights() {
   viewportHeight = window.innerHeight;
@@ -58,11 +151,12 @@ function refreshLayoutHeights() {
 async function init() {
   console.log('[The Nines] Initializing…');
 
-  const sections = await buildSectionConfig();
-  console.log(`[The Nines] ${sections.length} sections configured`);
+  masterSections = await buildSectionConfig();
+  console.log(`[The Nines] ${masterSections.length} master sections configured`);
 
   viewportHeight = window.innerHeight;
   viewportWidth = window.innerWidth;
+  const sections = filterSectionsForPureVeg(masterSections, isPureVeg);
   layout = computeScrollLayout(sections, viewportHeight);
 
   // Set up canvas & core systems
@@ -94,9 +188,16 @@ async function init() {
   const totalScroll = refreshLayoutHeights();
   console.log(`[The Nines] Total scroll height: ${Math.round(totalScroll)}px`);
 
-  // Phase 4: Init Nav and List
+  // Phase 4: Init Nav, List, and Pure Veg Toggle
   navController = initNav(layout, loader, easer);
   initListUI();
+
+  const vegToggleBtn = document.getElementById('pure-veg-toggle');
+  if (vegToggleBtn) {
+    vegToggleBtn.addEventListener('click', () => {
+      setPureVegMode(!isPureVeg);
+    });
+  }
 
   const isDebugOrLocal =
     typeof window !== 'undefined' &&

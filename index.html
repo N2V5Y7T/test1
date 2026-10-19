@@ -78,7 +78,7 @@
     #video-scrim {
       position: absolute;
       inset: 0;
-      background: rgba(0, 0, 0, 0.36);
+      background: rgba(0, 0, 0, 0.44);
       opacity: 0;
       pointer-events: none;
       z-index: 5;
@@ -118,10 +118,13 @@
       pointer-events: none;
       color: #fff;
       opacity: 0;
-      transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.22s ease;
     }
     body.ready #menu-layer {
       opacity: 1;
+    }
+    body.ready #menu-layer.veg-filtering-fade {
+      opacity: 0.18;
     }
 
     .menu-section {
@@ -141,6 +144,47 @@
       top: 50%;
       padding: 0 24px;
       transform: translate3d(-50%, -50%, 0);
+    }
+
+    #swipe-hint {
+      position: absolute;
+      bottom: max(36px, calc(env(safe-area-inset-bottom) + 24px));
+      left: 50%;
+      transform: translate3d(-50%, 0, 0);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      pointer-events: none;
+      z-index: 25;
+      will-change: opacity;
+    }
+    .swipe-hint-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 16px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(193, 123, 85, 0.24) 0%, rgba(15, 15, 15, 0.62) 100%);
+      border: 1px solid rgba(214, 143, 103, 0.42);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.55);
+    }
+    .swipe-hint-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #f3dfd3;
+    }
+    .swipe-hint-chevron {
+      color: #d68f67;
+      animation: swipeChevronPulse 1.8s ease-in-out infinite;
+    }
+    @keyframes swipeChevronPulse {
+      0%, 100% { transform: translate3d(0, -2px, 0); opacity: 0.65; }
+      50%      { transform: translate3d(0, 3px, 0);  opacity: 1; }
     }
 
     .menu-section.thank-you-section {
@@ -386,8 +430,8 @@
 
     .item-desc {
       font-size: 12.5px;
-      font-weight: 300;
-      color: #c2c2c2;
+      font-weight: 400;
+      color: #dcdcdc;
       line-height: 1.45;
       letter-spacing: 0.01em;
       margin-top: 3px;
@@ -441,12 +485,154 @@
       filter: invert(1) brightness(1.55) sepia(0.45) hue-rotate(-18deg);
     }
 
+    .top-nav-right {
+      justify-self: end;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    /* ── Minimal Liquid Glass VEG Toggle Switch (Exact Reference Match) ── */
+    .liquid-veg-toggle {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 2px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      flex-shrink: 0;
+      min-height: 44px;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.15s ease;
+    }
+    .liquid-veg-toggle:active {
+      transform: scale(0.95);
+    }
+
+    /* Outer & Inner Refractive Liquid Glass Capsule */
+    .liquid-veg-track {
+      position: relative;
+      width: 66px;
+      height: 28px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(246, 248, 250, 0.25) 0%, rgba(220, 226, 234, 0.15) 100%);
+      border: 1.2px solid rgba(255, 255, 255, 0.46);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      box-shadow:
+        0 3px 10px rgba(0, 0, 0, 0.42),
+        inset 0 1.5px 2px rgba(255, 255, 255, 0.72),
+        inset 0 -1.5px 2px rgba(255, 255, 255, 0.22),
+        inset 0 0 0 2px rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition:
+        background 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* ON State: Luminous Mint-Emerald Liquid Glass Track + Emerald Refractive Rim */
+    .liquid-veg-toggle.active .liquid-veg-track {
+      background: linear-gradient(180deg, rgba(222, 248, 228, 0.92) 0%, rgba(194, 239, 205, 0.86) 100%);
+      border-color: rgba(72, 188, 94, 0.9);
+      box-shadow:
+        0 3px 12px rgba(34, 160, 62, 0.38),
+        inset 0 1.5px 2px rgba(255, 255, 255, 0.88),
+        inset 0 -1.5px 2.5px rgba(34, 150, 58, 0.45),
+        inset 0 0 0 2px rgba(82, 204, 106, 0.34);
+    }
+
+    /* "VEG" Typography — Right side when OFF, glides to Left side in Deep Forest Green when ON */
+    .liquid-veg-label {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      line-height: 1;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+      transform: translate3d(10px, 0, 0);
+      transition:
+        transform 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+        color 0.28s ease,
+        text-shadow 0.28s ease,
+        font-weight 0.28s ease;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .liquid-veg-toggle.active .liquid-veg-label {
+      color: #0d561c;
+      font-weight: 600;
+      text-shadow: 0 0.5px 0 rgba(255, 255, 255, 0.5);
+      transform: translate3d(-11px, 0, 0);
+    }
+
+    /* 3D Tactile Circular Knob — Pearl White on Left (OFF) -> Lush Emerald Disc on Right (ON) */
+    .liquid-veg-knob {
+      position: absolute;
+      top: 50%;
+      left: 3px;
+      width: 21px;
+      height: 21px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 36% 28%, #ffffff 0%, #f4f6f8 62%, #e2e6ea 100%);
+      box-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.32),
+        0 0.5px 1px rgba(0, 0, 0, 0.18),
+        inset 0 1.5px 1.5px #ffffff,
+        inset 0 -1px 1.5px rgba(0, 0, 0, 0.08);
+      transform: translate3d(0, -50%, 0);
+      transition:
+        transform 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+        background 0.34s ease,
+        box-shadow 0.34s ease;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .liquid-veg-toggle.active .liquid-veg-knob {
+      transform: translate3d(37px, -50%, 0);
+      background: radial-gradient(circle at 36% 28%, #47b85c 0%, #2b9940 58%, #1e7d30 100%);
+      box-shadow:
+        0 2px 5px rgba(14, 75, 26, 0.42),
+        inset 0 1.5px 2px rgba(255, 255, 255, 0.65),
+        inset 0 -1.5px 2px rgba(8, 52, 17, 0.38);
+    }
+
+    @media (max-width: 380px) {
+      .liquid-veg-track {
+        width: 60px;
+        height: 26px;
+      }
+      .liquid-veg-knob {
+        width: 19px;
+        height: 19px;
+      }
+      .liquid-veg-toggle.active .liquid-veg-knob {
+        transform: translate3d(33px, -50%, 0);
+      }
+      .liquid-veg-label {
+        font-size: 9.5px;
+        transform: translate3d(9px, 0, 0);
+      }
+      .liquid-veg-toggle.active .liquid-veg-label {
+        transform: translate3d(-10px, 0, 0);
+      }
+    }
+
     #nav-list-btn {
       background: none; border: none;
       color: #fff;
       cursor: pointer;
       padding: 8px;
-      justify-self: end;
       position: relative;
       display: flex; align-items: center;
     }
@@ -834,6 +1020,36 @@
       font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 500;
       margin-bottom: 10px; color: #fff;
     }
+    .footer-tax-note {
+      font-size: 11px;
+      color: #888;
+      text-align: center;
+      margin-bottom: 12px;
+      letter-spacing: 0.02em;
+    }
+    #share-whatsapp-btn {
+      display: none;
+      width: 100%;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: #25D366;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+    #share-whatsapp-btn:active {
+      background: #1eb857;
+      transform: scale(0.98);
+    }
     .footer-note {
       font-size: 12px; color: #888; text-align: center;
     }
@@ -1127,14 +1343,23 @@
       <img src="./assets/logo-new.png" alt="The Nines" id="top-logo" />
     </div>
 
-    <button id="nav-list-btn" aria-label="My List">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="9" cy="21" r="1"/>
-        <circle cx="20" cy="21" r="1"/>
-        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-      </svg>
-      <span id="list-count">0</span>
-    </button>
+    <div class="top-nav-right">
+      <button id="pure-veg-toggle" class="liquid-veg-toggle" type="button" role="switch" aria-checked="false" aria-label="Toggle Pure Veg Mode" title="Pure Veg Mode (No Meat, Fish, or Egg)">
+        <span class="liquid-veg-track">
+          <span class="liquid-veg-label">VEG</span>
+          <span class="liquid-veg-knob" aria-hidden="true"></span>
+        </span>
+      </button>
+
+      <button id="nav-list-btn" aria-label="My List">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="9" cy="21" r="1"/>
+          <circle cx="20" cy="21" r="1"/>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+        </svg>
+        <span id="list-count">0</span>
+      </button>
+    </div>
   </header>
 
   <!-- Bottom Section Tab Strip + Group Pagination Dots (Spec §4) -->
@@ -1166,6 +1391,13 @@
         <span>Estimated Total</span>
         <span id="list-total-sum">₹0</span>
       </div>
+      <p class="footer-tax-note">Taxes & service charge extra as applicable.</p>
+      <button id="share-whatsapp-btn" type="button" aria-label="Share on WhatsApp">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.694.06-2.007-.484-1.684-.698-2.766-2.428-2.85-2.54-.084-.112-.678-.902-.678-1.721 0-.819.429-1.223.582-1.389.153-.167.334-.209.446-.209.112 0 .224 0 .323.006.104.005.244-.04.382.291.144.346.49 1.196.533 1.284.043.088.072.19.014.305-.058.115-.087.187-.174.288-.087.102-.183.227-.261.305-.088.087-.18.182-.077.36.103.177.458.756.983 1.224.675.602 1.244.788 1.422.875.178.087.283.073.388-.048.106-.12.453-.527.574-.708.121-.182.242-.152.404-.091.162.06 1.026.484 1.203.573.177.089.294.132.338.206.044.074.044.43-.1 1.235z"/>
+        </svg>
+        <span>Share on WhatsApp</span>
+      </button>
       <p class="footer-note">Show this to your server to place an order.</p>
     </div>
   </div>

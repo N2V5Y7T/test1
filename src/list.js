@@ -17,7 +17,60 @@ const selectedItems = new Map();
 const allItemsMap = new Map();
 
 export function registerItem(item) {
-  allItemsMap.set(item.id, item);
+  const existing = allItemsMap.get(item.id);
+  if (!existing || (item.options?.length || 0) >= (existing.options?.length || 0)) {
+    allItemsMap.set(item.id, item);
+  }
+}
+
+let _modalHistoryPushed = false;
+let _closingFromPopState = false;
+
+export function isAnyModalOpen() {
+  if (typeof document === 'undefined') return false;
+  const navDrawer = document.getElementById('nav-drawer');
+  const listDrawer = document.getElementById('list-drawer');
+  const picker = document.getElementById('option-picker');
+  return Boolean(
+    (navDrawer && navDrawer.classList.contains('open')) ||
+    (listDrawer && listDrawer.classList.contains('open')) ||
+    (picker && picker.classList.contains('open'))
+  );
+}
+
+export function pushModalHistoryState() {
+  if (typeof window === 'undefined' || _modalHistoryPushed) return;
+  try {
+    window.history.pushState({ theNinesModal: true }, '');
+    _modalHistoryPushed = true;
+  } catch (_) {}
+}
+
+export function popModalHistoryStateIfNeeded() {
+  if (typeof window === 'undefined') return;
+  if (_closingFromPopState) return;
+  if (_modalHistoryPushed && !isAnyModalOpen()) {
+    _modalHistoryPushed = false;
+    try {
+      window.history.back();
+    } catch (_) {}
+  }
+}
+
+function syncModalScrollLock() {
+  releaseLock('list-drawer');
+  releaseLock('nav-drawer');
+  releaseLock('option-picker');
+}
+
+export function syncAllMenuButtons() {
+  selectedItems.forEach((entry, id) => {
+    if (id.includes(':') || entry.variantLabel) {
+      syncVariantMenuButton(entry.baseId || id.split(':')[0]);
+    } else {
+      syncMenuButton(id);
+    }
+  });
 }
 
 // ── Internal helpers ────────────────────────────────────────────
@@ -327,10 +380,14 @@ export function renderDrawer() {
   const container = document.getElementById('list-items-container');
   const totalEl   = document.getElementById('list-total-sum');
   const clearBtn  = document.getElementById('clear-list-btn');
+  const shareBtn  = document.getElementById('share-whatsapp-btn');
   if (!container || !totalEl) return;
 
   if (clearBtn) {
     clearBtn.style.display = selectedItems.size > 0 ? 'inline-flex' : 'none';
+  }
+  if (shareBtn) {
+    shareBtn.style.display = selectedItems.size > 0 ? 'inline-flex' : 'none';
   }
 
   if (selectedItems.size === 0) {
@@ -383,12 +440,14 @@ export function initListUI() {
   const openBtn  = document.getElementById('nav-list-btn');
   const closeBtn = document.getElementById('close-list-btn');
   const clearBtn = document.getElementById('clear-list-btn');
+  const shareBtn = document.getElementById('share-whatsapp-btn');
 
   function openDrawer() {
     renderDrawer();
     drawer.classList.add('open');
     overlay.classList.add('open');
     acquireLock('list-drawer');
+    pushModalHistoryState();
   }
   function closeDrawer() {
     drawer.classList.remove('open');
@@ -397,6 +456,7 @@ export function initListUI() {
       overlay.classList.remove('open');
     }
     releaseLock('list-drawer');
+    popModalHistoryStateIfNeeded();
   }
 
   registerOverlayCloseHandler('list-drawer', closeDrawer);
@@ -406,6 +466,62 @@ export function initListUI() {
   overlay.addEventListener('click', closeDrawer);
   if (clearBtn) {
     clearBtn.addEventListener('click', () => clearList());
+  }
+
+  if (shareBtn) {
+    shareBtn.addEventListener('click', () => {
+      if (selectedItems.size === 0) return;
+      const lines = ['*My Order at The Nines:*', ''];
+      let total = 0;
+      selectedItems.forEach((entry) => {
+        const { item, qty } = entry;
+        const unitPrice = getPriceNumber(item);
+        const lineTotal = unitPrice * qty;
+        total += lineTotal;
+        const priceStr = unitPrice > 0 ? ` - ₹${lineTotal.toLocaleString('en-IN')}` : '';
+        lines.push(`• ${qty}x ${item.name}${priceStr}`);
+      });
+      lines.push('');
+      lines.push(`*Estimated Total:* ₹${total.toLocaleString('en-IN')}`);
+      lines.push('_(Taxes & service charge extra as applicable)_');
+      const text = encodeURIComponent(lines.join('\n'));
+      window.open(`https://wa.me/?text=${text}`, '_blank');
+    });
+  }
+
+  if (!window._theNinesPopStateBound) {
+    window._theNinesPopStateBound = true;
+    window.addEventListener('popstate', () => {
+      const navDrawer = document.getElementById('nav-drawer');
+      const listDrawer = document.getElementById('list-drawer');
+      const overlayEl = document.getElementById('drawer-overlay');
+      const picker = document.getElementById('option-picker');
+      const pickerBg = document.getElementById('option-picker-bg');
+
+      const hadOpenModal = Boolean(
+        (navDrawer && navDrawer.classList.contains('open')) ||
+        (listDrawer && listDrawer.classList.contains('open')) ||
+        picker
+      );
+
+      if (hadOpenModal) {
+        _closingFromPopState = true;
+        _modalHistoryPushed = false;
+        if (navDrawer) navDrawer.classList.remove('open');
+        if (listDrawer) listDrawer.classList.remove('open');
+        if (overlayEl) overlayEl.classList.remove('open');
+        if (picker) {
+          picker.classList.remove('open');
+          setTimeout(() => picker.remove(), 260);
+        }
+        if (pickerBg) {
+          pickerBg.classList.remove('open');
+          setTimeout(() => pickerBg.remove(), 260);
+        }
+        syncModalScrollLock();
+        _closingFromPopState = false;
+      }
+    });
   }
 
   restoreFromStorage();

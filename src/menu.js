@@ -11,6 +11,8 @@ import {
   incrementItem,
   decrementItem,
   getVariantQty,
+  pushModalHistoryState,
+  popModalHistoryStateIfNeeded,
 } from './list.js';
 import { acquireLock, releaseLock, registerOverlayCloseHandler } from './scroll-lock.js';
 import { escapeHtml } from './utils.js';
@@ -31,6 +33,7 @@ function closeOptionPicker() {
     setTimeout(() => bg.remove(), 260);
   }
   releaseLock('option-picker');
+  popModalHistoryStateIfNeeded();
 }
 
 registerOverlayCloseHandler('option-picker', closeOptionPicker);
@@ -185,6 +188,7 @@ function showOptionPicker(itemId) {
   document.body.appendChild(picker);
   requestAnimationFrame(() => picker.classList.add('open'));
   acquireLock('option-picker');
+  pushModalHistoryState();
 }
 
 function renderPriceBlock(item) {
@@ -243,7 +247,7 @@ function renderItem(item) {
   const noteHtml = item.note ? `<div class="item-note">${escapeHtml(item.note)}</div>` : '';
 
   const options = getOptions(item);
-  const hasMultipleOptions = options.length > 1;
+  const hasMultipleOptions = options.length > 1 || Boolean(item.hadMultipleOptions);
   const canAdd = hasValidPrice(item);
   const priceHtml = renderPriceBlock(item);
 
@@ -352,6 +356,18 @@ export function buildMenuDOM(layout) {
   thankYouEl.style.display = 'none';
   layer.appendChild(thankYouEl);
   _thankYouEl = thankYouEl;
+
+  const hintEl = document.createElement('div');
+  hintEl.id = 'swipe-hint';
+  hintEl.innerHTML = `
+    <span class="swipe-hint-pill">
+      <span class="swipe-hint-text">Swipe to Explore</span>
+      <svg class="swipe-hint-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </span>
+  `;
+  layer.appendChild(hintEl);
 
   if (!layer._boundClickListener) {
     layer._boundClickListener = true;
@@ -588,5 +604,17 @@ export function updateMenuState(state, layout, vh) {
       }
     }
     _scrimEl.style.opacity = scrimOpacity.toFixed(3);
+  }
+
+  const swipeHintEl = document.getElementById('swipe-hint');
+  if (swipeHintEl) {
+    if (state.sectionIndex === 0 && activeSec.type === 'group-intro' && state.segment === 'A') {
+      const fadeOut = Math.max(0, Math.min(1, 1 - (state.segmentProgress / 0.24)));
+      swipeHintEl.style.opacity = fadeOut.toFixed(3);
+      swipeHintEl.style.display = fadeOut > 0.01 ? 'flex' : 'none';
+    } else {
+      swipeHintEl.style.opacity = '0';
+      swipeHintEl.style.display = 'none';
+    }
   }
 }

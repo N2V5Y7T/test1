@@ -5,6 +5,7 @@
 import { acquireLock, releaseLock, registerOverlayCloseHandler } from './scroll-lock.js';
 import { escapeHtml } from './utils.js';
 import { computeAdaptiveDuration } from './scroll-easer.js';
+import { pushModalHistoryState, popModalHistoryStateIfNeeded } from './list.js';
 
 let _activeSectionKey = null;
 let _renderedSectionKeys = '';
@@ -49,6 +50,7 @@ export function initNav(layout, loader, easer) {
     drawer.classList.add('open');
     overlay.classList.add('open');
     acquireLock('nav-drawer');
+    pushModalHistoryState();
   }
 
   function closeDrawer() {
@@ -58,6 +60,7 @@ export function initNav(layout, loader, easer) {
       overlay.classList.remove('open');
     }
     releaseLock('nav-drawer');
+    popModalHistoryStateIfNeeded();
   }
 
   registerOverlayCloseHandler('nav-drawer', closeDrawer);

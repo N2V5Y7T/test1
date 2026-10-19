@@ -110,6 +110,114 @@ export async function buildSectionConfig() {
   return sections;
 }
 
+const NON_VEG_OPTION_RE = /\b(chicken|prawn|prawns|mutton|lamb|fish|egg|eggs|crab|salmon|seafood|meat|pork|beef|keema)\b/i;
+const EGG_TEXT_RE = /\b(egg|eggs|omelette)\b/i; // Note: \begg\b matches "egg" but NOT "eggless" (so Eggless Tres Leches stays!)
+
+function filterItemForPureVeg(item) {
+  if (!item) return null;
+  if (item.diet === 'nonveg' || item.diet === 'egg') return null;
+  const fullText = `${item.name || ''} ${item.desc || ''} ${item.note || ''}`;
+  if (EGG_TEXT_RE.test(fullText)) return null;
+
+  if (Array.isArray(item.options) && item.options.length > 0) {
+    const filteredOptions = item.options.filter(opt => {
+      if (opt.diet === 'nonveg' || opt.diet === 'egg') return false;
+      const optText = `${opt.label || ''} ${opt.desc || ''}`;
+      return !NON_VEG_OPTION_RE.test(optText);
+    });
+
+    if (filteredOptions.length === 0) return null;
+
+    return {
+      ...item,
+      options: filteredOptions.map(o => ({ ...o })),
+      hadMultipleOptions: item.options.length > 1,
+    };
+  }
+
+  return { ...item };
+}
+
+/**
+ * Filter sections for Pure Veg mode dynamically in memory.
+ * Preserves masterSections untouched so toggling Pure Veg restores the entire menu instantaneously.
+ */
+export function filterSectionsForPureVeg(masterSections, isPureVeg) {
+  if (!isPureVeg) {
+    return masterSections.map((sec, idx) => ({
+      ...sec,
+      index: idx,
+      measuredHeightPx: undefined,
+      items: sec.items ? sec.items.map(it => ({ ...it, options: it.options ? it.options.map(o => ({ ...o })) : it.options })) : null,
+      subgroups: sec.subgroups ? sec.subgroups.map(sg => ({
+        ...sg,
+        items: sg.items.map(it => ({ ...it, options: it.options ? it.options.map(o => ({ ...o })) : it.options }))
+      })) : null,
+    }));
+  }
+
+  const result = [];
+
+  for (const sec of masterSections) {
+    // Non-food groups or group-intro stay intact
+    if (sec.groupKey !== 'food' || sec.type === 'group-intro') {
+      result.push({
+        ...sec,
+        measuredHeightPx: undefined,
+        items: sec.items ? sec.items.map(it => ({ ...it, options: it.options ? it.options.map(o => ({ ...o })) : it.options })) : null,
+        subgroups: sec.subgroups ? sec.subgroups.map(sg => ({
+          ...sg,
+          items: sg.items.map(it => ({ ...it, options: it.options ? it.options.map(o => ({ ...o })) : it.options }))
+        })) : null,
+      });
+      continue;
+    }
+
+    // Food section with subgroups
+    if (sec.subgroups && Array.isArray(sec.subgroups)) {
+      const keptSubgroups = [];
+      for (const sg of sec.subgroups) {
+        const filteredItems = sg.items ? sg.items.map(filterItemForPureVeg).filter(Boolean) : [];
+        if (filteredItems.length > 0) {
+          keptSubgroups.push({
+            ...sg,
+            items: filteredItems,
+          });
+        }
+      }
+      if (keptSubgroups.length === 0) {
+        // Drop section entirely if no items remain
+        continue;
+      }
+      const cloned = {
+        ...sec,
+        subgroups: keptSubgroups,
+        measuredHeightPx: undefined,
+      };
+      cloned.estimatedMenuHeightPx = estimateMenuHeight(cloned);
+      result.push(cloned);
+    } else if (sec.items && Array.isArray(sec.items)) {
+      const filteredItems = sec.items.map(filterItemForPureVeg).filter(Boolean);
+      if (filteredItems.length === 0) {
+        // Drop section entirely (e.g. nonveg-starters, nonveg-mains)
+        continue;
+      }
+      const cloned = {
+        ...sec,
+        items: filteredItems,
+        measuredHeightPx: undefined,
+      };
+      cloned.estimatedMenuHeightPx = estimateMenuHeight(cloned);
+      result.push(cloned);
+    }
+  }
+
+  return result.map((sec, idx) => ({
+    ...sec,
+    index: idx,
+  }));
+}
+
 /**
  * Compute scroll layout for all sections.
  * Returns section objects augmented with absolute scroll positions (in px).
