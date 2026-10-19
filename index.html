@@ -148,9 +148,10 @@
 
     #swipe-hint {
       position: absolute;
-      bottom: max(36px, calc(env(safe-area-inset-bottom) + 24px));
+      top: 67.5%;
+      bottom: auto;
       left: 50%;
-      transform: translate3d(-50%, 0, 0);
+      transform: translate3d(-50%, -50%, 0);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -491,13 +492,13 @@
       align-items: center;
       gap: 6px;
     }
-    /* ── Minimal Liquid Glass VEG Toggle Switch (Exact Reference Match) ── */
+    /* ── Micro Liquid Glass VEG Toggle Switch (48×20px Pill, 44px Invisible Touch Target) ── */
     .liquid-veg-toggle {
       position: relative;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 6px 2px;
+      padding: 10px 3px;
       background: none;
       border: none;
       cursor: pointer;
@@ -509,24 +510,24 @@
       transition: transform 0.15s ease;
     }
     .liquid-veg-toggle:active {
-      transform: scale(0.95);
+      transform: scale(0.94);
     }
 
-    /* Outer & Inner Refractive Liquid Glass Capsule */
+    /* Outer & Inner Refractive Liquid Glass Capsule (48×20px Micro Size) */
     .liquid-veg-track {
       position: relative;
-      width: 66px;
-      height: 28px;
+      width: 48px;
+      height: 20px;
       border-radius: 999px;
-      background: linear-gradient(180deg, rgba(246, 248, 250, 0.25) 0%, rgba(220, 226, 234, 0.15) 100%);
-      border: 1.2px solid rgba(255, 255, 255, 0.46);
-      backdrop-filter: blur(16px) saturate(180%);
-      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      background: linear-gradient(180deg, rgba(246, 248, 250, 0.24) 0%, rgba(220, 226, 234, 0.14) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.44);
+      backdrop-filter: blur(14px) saturate(180%);
+      -webkit-backdrop-filter: blur(14px) saturate(180%);
       box-shadow:
-        0 3px 10px rgba(0, 0, 0, 0.42),
-        inset 0 1.5px 2px rgba(255, 255, 255, 0.72),
-        inset 0 -1.5px 2px rgba(255, 255, 255, 0.22),
-        inset 0 0 0 2px rgba(255, 255, 255, 0.12);
+        0 2px 7px rgba(0, 0, 0, 0.4),
+        inset 0 1px 1.5px rgba(255, 255, 255, 0.7),
+        inset 0 -1px 1.5px rgba(255, 255, 255, 0.2),
+        inset 0 0 0 1.5px rgba(255, 255, 255, 0.1);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -542,53 +543,51 @@
       background: linear-gradient(180deg, rgba(222, 248, 228, 0.92) 0%, rgba(194, 239, 205, 0.86) 100%);
       border-color: rgba(72, 188, 94, 0.9);
       box-shadow:
-        0 3px 12px rgba(34, 160, 62, 0.38),
-        inset 0 1.5px 2px rgba(255, 255, 255, 0.88),
-        inset 0 -1.5px 2.5px rgba(34, 150, 58, 0.45),
-        inset 0 0 0 2px rgba(82, 204, 106, 0.34);
+        0 2px 9px rgba(34, 160, 62, 0.36),
+        inset 0 1px 1.5px rgba(255, 255, 255, 0.88),
+        inset 0 -1px 2px rgba(34, 150, 58, 0.42),
+        inset 0 0 0 1.5px rgba(82, 204, 106, 0.32);
     }
 
     /* "VEG" Typography — Right side when OFF, glides to Left side in Deep Forest Green when ON */
     .liquid-veg-label {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      font-size: 10.5px;
-      font-weight: 500;
-      letter-spacing: 0.06em;
+      font-size: 8.5px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
       line-height: 1;
       text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.9);
+      color: rgba(255, 255, 255, 0.88);
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
-      transform: translate3d(10px, 0, 0);
+      transform: translate3d(7px, 0, 0);
       transition:
         transform 0.34s cubic-bezier(0.22, 1, 0.36, 1),
         color 0.28s ease,
-        text-shadow 0.28s ease,
-        font-weight 0.28s ease;
+        text-shadow 0.28s ease;
       pointer-events: none;
       z-index: 1;
     }
 
     .liquid-veg-toggle.active .liquid-veg-label {
       color: #0d561c;
-      font-weight: 600;
       text-shadow: 0 0.5px 0 rgba(255, 255, 255, 0.5);
-      transform: translate3d(-11px, 0, 0);
+      transform: translate3d(-7.5px, 0, 0);
     }
 
-    /* 3D Tactile Circular Knob — Pearl White on Left (OFF) -> Lush Emerald Disc on Right (ON) */
+    /* 3D Tactile Circular Knob (15×15px) — Pearl White on Left (OFF) -> Lush Emerald Disc on Right (ON) */
     .liquid-veg-knob {
       position: absolute;
       top: 50%;
-      left: 3px;
-      width: 21px;
-      height: 21px;
+      left: 2.5px;
+      width: 15px;
+      height: 15px;
       border-radius: 50%;
       background: radial-gradient(circle at 36% 28%, #ffffff 0%, #f4f6f8 62%, #e2e6ea 100%);
       box-shadow:
-        0 2px 5px rgba(0, 0, 0, 0.32),
+        0 1.5px 3.5px rgba(0, 0, 0, 0.32),
         0 0.5px 1px rgba(0, 0, 0, 0.18),
-        inset 0 1.5px 1.5px #ffffff,
-        inset 0 -1px 1.5px rgba(0, 0, 0, 0.08);
+        inset 0 1px 1px #ffffff,
+        inset 0 -1px 1px rgba(0, 0, 0, 0.08);
       transform: translate3d(0, -50%, 0);
       transition:
         transform 0.34s cubic-bezier(0.22, 1, 0.36, 1),
@@ -599,32 +598,33 @@
     }
 
     .liquid-veg-toggle.active .liquid-veg-knob {
-      transform: translate3d(37px, -50%, 0);
+      transform: translate3d(26.5px, -50%, 0);
       background: radial-gradient(circle at 36% 28%, #47b85c 0%, #2b9940 58%, #1e7d30 100%);
       box-shadow:
-        0 2px 5px rgba(14, 75, 26, 0.42),
-        inset 0 1.5px 2px rgba(255, 255, 255, 0.65),
-        inset 0 -1.5px 2px rgba(8, 52, 17, 0.38);
+        0 1.5px 4px rgba(14, 75, 26, 0.42),
+        inset 0 1px 1.5px rgba(255, 255, 255, 0.65),
+        inset 0 -1px 1.5px rgba(8, 52, 17, 0.38);
     }
 
     @media (max-width: 380px) {
       .liquid-veg-track {
-        width: 60px;
-        height: 26px;
-      }
-      .liquid-veg-knob {
-        width: 19px;
+        width: 44px;
         height: 19px;
       }
+      .liquid-veg-knob {
+        width: 14px;
+        height: 14px;
+        left: 2px;
+      }
       .liquid-veg-toggle.active .liquid-veg-knob {
-        transform: translate3d(33px, -50%, 0);
+        transform: translate3d(24px, -50%, 0);
       }
       .liquid-veg-label {
-        font-size: 9.5px;
-        transform: translate3d(9px, 0, 0);
+        font-size: 8px;
+        transform: translate3d(6.5px, 0, 0);
       }
       .liquid-veg-toggle.active .liquid-veg-label {
-        transform: translate3d(-10px, 0, 0);
+        transform: translate3d(-6.5px, 0, 0);
       }
     }
 
