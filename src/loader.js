@@ -11,8 +11,10 @@
  * - Suppresses full-resolution intermediate bulk downloads during the tween.
  */
 
-const PRELOAD_WINDOW_RATIO = 0.48;
-const EVICT_HYSTERESIS = 1;
+import { RUNTIME_PROFILE } from './platform-profile.js';
+
+const PRELOAD_WINDOW_RATIO = RUNTIME_PROFILE.preloadWindowRatio;
+const EVICT_HYSTERESIS = RUNTIME_PROFILE.evictHysteresis;
 
 export class SmartLoader {
   /**

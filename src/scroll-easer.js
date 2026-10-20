@@ -9,9 +9,11 @@
  * 4. Clean Tween Supersession: rapid clicks smoothly retarget without firing stale callbacks.
  */
 
+import { RUNTIME_PROFILE } from './platform-profile.js';
+
 const SNAP_THRESHOLD = 0.15;
 const TOUCH_TAU_MS = 22;   // Fast micro-smoothing on touch screens
-const DESKTOP_TAU_MS = 55; // Smooth momentum glide on desktop wheel/trackpad
+const DESKTOP_TAU_MS = RUNTIME_PROFILE.desktopTauMs; // Smooth momentum glide on desktop wheel/trackpad
 
 export function computeAdaptiveDuration(distancePx) {
   const absDist = Math.abs(distancePx);

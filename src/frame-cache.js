@@ -14,12 +14,14 @@
  *         Pre-warmed frame 0 and holdFrame across all sections.
  */
 
-const MAX_ANCHOR_WORKERS = 3;
-const MAX_CONCURRENT_HIGH = 10;
-const MAX_CONCURRENT_MEDIUM = 6;
-const MAX_CONCURRENT_LOW = 3;
-const MAX_GLOBAL_WORKERS = 14;
-const SESSION_CACHE_MAX_BYTES = 90 * 1024 * 1024; // 90 MB
+import { RUNTIME_PROFILE } from './platform-profile.js';
+
+const MAX_ANCHOR_WORKERS = RUNTIME_PROFILE.maxAnchorWorkers;
+const MAX_CONCURRENT_HIGH = RUNTIME_PROFILE.maxConcurrentHigh;
+const MAX_CONCURRENT_MEDIUM = RUNTIME_PROFILE.maxConcurrentMedium;
+const MAX_CONCURRENT_LOW = RUNTIME_PROFILE.maxConcurrentLow;
+const MAX_GLOBAL_WORKERS = RUNTIME_PROFILE.maxGlobalWorkers;
+const SESSION_CACHE_MAX_BYTES = RUNTIME_PROFILE.sessionCacheMaxBytes;
 
 function pad(n) {
   return String(n + 1).padStart(4, '0'); // frames are 1-indexed on disk

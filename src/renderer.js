@@ -6,7 +6,9 @@
  * and velocity-aware sub-frame blending.
  */
 
-const MAX_DPR = 2;
+import { RUNTIME_PROFILE } from './platform-profile.js';
+
+const MAX_DPR = RUNTIME_PROFILE.maxCanvasDpr;
 const PROGRESSIVE_SHARPEN_MS = 140;
 
 export class Renderer {
