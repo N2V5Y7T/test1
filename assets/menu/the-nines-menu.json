@@ -1,0 +1,2627 @@
+{
+  "brand": {
+    "name": "The Nines",
+    "logo": null
+  },
+  "currency": {
+    "code": "INR",
+    "symbol": "₹",
+    "locale": "en-IN"
+  },
+  "groups": [
+    {
+      "key": "food",
+      "label": "Food",
+      "video": "food.mp4",
+      "sections": [
+        {
+          "key": "first-course",
+          "label": "The First Course",
+          "video": "first-course.mp4",
+          "holdFrame": null,
+          "scrubLengthVh": 150,
+          "items": [
+            {
+              "id": "wild-mushroom-cappuccino",
+              "name": "Wild Mushroom Cappuccino",
+              "desc": "Rich creamy frothy porcini flavoured mushroom soup",
+              "price": 329,
+              "diet": "veg"
+            },
+            {
+              "id": "golden-wok-manchow",
+              "name": "Golden Wok Manchow",
+              "desc": "Served with crispy noodles",
+              "options": [
+                {
+                  "label": "Veg",
+                  "price": 329
+                },
+                {
+                  "label": "Chicken",
+                  "price": 369
+                },
+                {
+                  "label": "Prawns",
+                  "price": 399
+                }
+              ],
+              "diet": "veg"
+            },
+            {
+              "id": "potato-wasabi-chives",
+              "name": "Potato & Wasabi Chives",
+              "desc": "A creamy potato soup with hint of truffle oil",
+              "price": 339,
+              "diet": "veg"
+            },
+            {
+              "id": "indo-asian-dumpling-soup",
+              "name": "Indo-Asian Dumpling Soup",
+              "desc": "Steamed momos with spicy and tangy filling",
+              "options": [
+                {
+                  "label": "Veg",
+                  "price": 319
+                },
+                {
+                  "label": "Chicken",
+                  "price": 359
+                },
+                {
+                  "label": "Prawns",
+                  "price": 389
+                }
+              ],
+              "diet": "veg"
+            },
+            {
+              "id": "chilled-burrata-heirloom-tomato-grape-salad",
+              "name": "Chilled Burrata, Heirloom Tomato & Grape Salad",
+              "desc": "Chilled burrata served with marinated tomatoes, California grapes, black olive dust and Melba toast",
+              "price": 559,
+              "diet": "veg"
+            },
+            {
+              "id": "nutri-bowl",
+              "name": "Nutri Bowl",
+              "desc": "A vibrant blend of quinoa, corn, roasted beetroot, avocado, black beans, olives, kale lettuce and vinaigrette dressing",
+              "price": 519,
+              "diet": "veg"
+            },
+            {
+              "id": "quinoa-avocado-salad",
+              "name": "Quinoa Avocado Salad",
+              "desc": "Nutty quinoa & creamy avocado mingle with crispy Thai cucumber, vibrant pepper, juicy orange, sweet pomegranate, crumbled feta",
+              "price": 509,
+              "diet": "veg"
+            },
+            {
+              "id": "orange-chicken-salad",
+              "name": "Orange Chicken Salad",
+              "desc": "Sous vide chicken, orange segment, mixed seeds, lettuce, parmesan cheese, saffron orange mustard dressing",
+              "price": 539,
+              "diet": "nonveg"
+            }
+          ]
+        },
+        {
+          "key": "bar-snacks",
+          "label": "By the Bar",
+          "video": "bar-snacks.mp4",
+          "holdFrame": null,
+          "scrubLengthVh": 180,
+          "items": [
+            {
+              "id": "chips-and-dip",
+              "name": "Chips & Dip",
+              "desc": "Edamame hummus with crisps of plantain, lotus stem, sweet potato and okra",
+              "price": 559,
+              "diet": "veg"
+            },
+            {
+              "id": "edamame",
+              "name": "Edamame",
+              "desc": "Steamed edamame tossed with rock salt / chilli garlic sauce",
+              "options": [
+                {
+                  "label": "Rock Salt",
+                  "price": 519
+                },
+                {
+                  "label": "Chilli Garlic",
+                  "price": 519
+                }
+              ],
+              "diet": "veg"
+            },
+            {
+              "id": "crispy-corn-tempura",
+              "name": "Crispy Corn Tempura",
+              "desc": "Bell pepper, garlic, onion, Thai chilli, spring onion",
+              "price": 449,
+              "diet": "veg"
+            },
+            {
+              "id": "truffle-popcorn",
+              "name": "Truffle Popcorn",
+              "desc": "Classic corn popcorn tossed with truffle oil",
+              "price": 289,
+              "diet": "veg"
+            },
+            {
+              "id": "avocado-tostada",
+              "name": "Avocado Tostada",
+              "desc": "Crispy tortilla, avocado slice, corn, jalapeno, black bean puree, kidney beans, feta, truffle oil, pico de gallo",
+              "price": 619,
+              "diet": "veg"
+            },
+            {
+              "id": "chimichurri-potato",
+              "name": "Chimichurri Potato",
+              "desc": "Tender spuds enveloped in a vibrant blend of garlic toum, fresh parsley and premium olive oil",
+              "price": 489,
+              "diet": "veg"
+            },
+            {
+              "id": "cauliflower-popcorn",
+              "name": "Cauliflower Popcorn",
+              "desc": "Cauliflower florets, panko, spice dust, spicy mayo",
+              "price": 469,
+              "diet": "veg"
+            },
+            {
+              "id": "avocado-khichiya-papad",
+              "name": "Avocado Khichiya Papad",
+              "desc": "Avocado butter, cherry tomato, onion, garlic toum & pomegranate",
+              "price": 429,
+              "diet": "veg"
+            },
+            {
+              "id": "spicy-parmesan-chicken",
+              "name": "Spicy Parmesan Chicken",
+              "desc": "Tender chicken, fiery marinade, panko, parmesan and parsley",
+              "price": 579,
+              "diet": "nonveg"
+            },
+            {
+              "id": "chicken-popcorn",
+              "name": "Chicken Popcorn",
+              "desc": "Chicken cube marinated with fiery spice, panko fried, served with garlic aioli",
+              "price": 549,
+              "diet": "nonveg"
+            },
+            {
+              "id": "fish-finger",
+              "name": "Fish Finger",
+              "desc": "Served with wasabi tartar dip",
+              "price": 669,
+              "diet": "nonveg"
+            },
+            {
+              "id": "oriental",
+              "name": "Oriental",
+              "desc": "Diced chicken or prawns tossed in cherry tomatoes, pepper and black bean sauce",
+              "options": [
+                {
+                  "label": "Chicken",
+                  "price": 589
+                },
+                {
+                  "label": "Prawns",
+                  "price": 749
+                }
+              ],
+              "diet": "nonveg"
+            },
+            {
+              "id": "pan-seared-65",
+              "name": "Pan Seared 65",
+              "desc": "Chilli paste, lime, green chilli, gram flour, Indian spice, curry leaf and garlic toum",
+              "options": [
+                {
+                  "label": "Chicken 65",
+                  "price": 589
+                },
+                {
+                  "label": "Prawns 65",
+                  "price": 749
+                }
+              ],
+              "diet": "nonveg"
+            }
+          ]
+        },
+        {
+          "key": "veg-starters",
+          "label": "To Begin Veg",
+          "video": "veg-starters.mp4",
+          "holdFrame": null,
+          "scrubLengthVh": 200,
+          "items": [
+            {
+              "id": "loaded-hummus",
+              "name": "Loaded Hummus",
+              "desc": "Hummus, EVOO, kalamata olives, feta, zaatar, served with warm pita bread",
+              "price": 509,
+              "diet": "veg"
+            },
+            {
+              "id": "loaded-nachos",
+              "name": "Loaded Nachos",
+              "desc": "Nachos chips, buffalo sauce, cheese sauce, pico de gallo, corn, jalapeno, kidney bean, sour cream, guacamole",
+              "price": 509,
+              "diet": "veg"
+            },
+            {
+              "id": "golden-melting-mushroom",
+              "name": "Golden Melting Mushroom",
+              "desc": "Stuffed mushroom coated with kataifi and deep fried, served with spicy mayo",
+              "price": 549,
+              "diet": "veg"
+            },
+            {
+              "id": "sauteed-vegetable",
+              "name": "Sautéed Vegetable",
+              "desc": "Exotic vegetable, mushrooms, olive oil, garlic, white wine and herb",
+              "price": 499,
+              "diet": "veg"
+            },
+            {
+              "id": "lotus-root-plum-sauce",
+              "name": "Lotus Root in Plum Sauce",
+              "desc": "Enriched with the bold flavours of chilli black bean jam",
+              "price": 619,
+              "diet": "veg"
+            },
+            {
+              "id": "lotus-root-salt-pepper",
+              "name": "Lotus Root Salt and Pepper",
+              "desc": "Crispy fried lotus stem, garlic, chilli, scallion and black pepper",
+              "price": 599,
+              "diet": "veg"
+            },
+            {
+              "id": "cottage-cheese-plum-sauce",
+              "name": "Cottage Cheese with Plum Sauce",
+              "desc": "Artfully seasoned and adorned with a tantalizing blend of red chilli paste, plum sauce, sesame and a finishing touch of spring onion",
+              "price": 519,
+              "diet": "veg"
+            },
+            {
+              "id": "thai-chilli-mushroom",
+              "name": "Thai Chilli Mushroom",
+              "desc": "Deep fried mushroom, Thai chilli seasoning, Thai red curry paste, lemongrass",
+              "price": 499,
+              "diet": "veg"
+            },
+            {
+              "id": "salt-pepper-cottage-cheese",
+              "name": "Salt and Pepper Style Cottage Cheese",
+              "desc": "Cottage cheese with crispy garlic crusts and spring onions",
+              "price": 509,
+              "diet": "veg"
+            },
+            {
+              "id": "turnip-cake",
+              "name": "Turnip Cake",
+              "desc": "Daikon, carrot, celery, burnt chilli, golden fried garlic, scallion",
+              "price": 509,
+              "diet": "veg"
+            },
+            {
+              "id": "avocado-burst",
+              "name": "Avocado Burst",
+              "desc": "Slice of avocado, tempura avocado, sweet corn, sriracha mayo, scallion, ponzu soy",
+              "price": 649,
+              "diet": "veg"
+            },
+            {
+              "id": "truffle-jungli-mushroom",
+              "name": "Truffle Jungli Mushroom",
+              "desc": "Stuffed mushrooms in cheese, Indian spices, cooked in clay oven, finished with truffle oil",
+              "price": 549,
+              "diet": "veg"
+            },
+            {
+              "id": "peri-peri-paneer-kabab",
+              "name": "Peri Peri Paneer Kabab",
+              "desc": "Marinated cottage cheese infused in hung curd, peri peri seasoning and ginger garlic paste",
+              "price": 549,
+              "diet": "veg"
+            },
+            {
+              "id": "chimichuri-paneer",
+              "name": "Chimichuri Paneer",
+              "desc": "Thin sliced paneer marinated in parsley, coriander, green chilli, ginger & stuffed cheese & bell pepper",
+              "price": 569,
+              "diet": "veg"
+            },
+            {
+              "id": "truffle-pav-bhaji-pull-me-out",
+              "name": "Truffle Pav Bhaji Pull Me Out",
+              "desc": "Crispy garlic, onions and mozzarella",
+              "price": 599,
+              "diet": "veg"
+            },
+            {
+              "id": "garden-fresh-slider",
+              "name": "Garden Fresh Slider",
+              "desc": "Exotic vegetable patty, spicy mayo and cheese slice",
+              "price": 599,
+              "diet": "veg"
+            }
+          ]
+        },
+        {
+          "key": "nonveg-starters",
+          "label": "To Begin Non-Veg",
+          "video": "nonveg-starters.mp4",
+          "holdFrame": null,
+          "scrubLengthVh": 220,
+          "items": [
+            {
+              "id": "lemon-turmeric-chicken-skewers",
+              "name": "Lemon and Turmeric Chicken Skewers",
+              "desc": "Fresh turmeric, onion, bird eye chilli, cashewnut marinated chicken grilled to perfection",
+              "price": 579,
+              "diet": "nonveg"
+            },
+            {
+              "id": "spanish-tiger-prawns",
+              "name": "Spanish Tiger Prawns",
+              "desc": "Juicy tiger prawns infused with the richness of capers, the brininess of black olives, aromatic garlic, succulent cherry tomatoes, fresh parsley, velvety butter, a touch of smoked paprika and a zing of lemon",
+              "price": 959,
+              "diet": "nonveg"
+            },
+            {
+              "id": "salt-pepper-style",
+              "name": "Salt and Pepper Style",
+              "desc": "Chicken/prawns with crispy garlic crusts and spring onions",
+              "options": [
+                {
+                  "label": "Chicken",
+                  "price": 549
+                },
+                {
+                  "label": "Prawns",
+                  "price": 799
+                }
+              ],
+              "diet": "nonveg"
+            },
+            {
+              "id": "kasundi-mustard-chilli",
+              "name": "Kasundi Mustard Chilli",
+              "desc": "Batter fried chicken/fish/prawns tossed in special kasundi mustard and yogurt chilli sauce",
+              "options": [
+                {
+                  "label": "Chicken",
+                  "price": 549
+                },
+                {
+                  "label": "Fish",
+                  "price": 699
+                },
+                {
+                  "label": "Prawns",
+                  "price": 799
+                }
+              ],
+              "diet": "nonveg"
+            },
+            {
+              "id": "nizami-chicken-tikka",
+              "name": "Nizami Chicken Tikka",
+              "desc": "Boneless chicken marinated in a luxurious blend of hung curd, velvety cheese, a hint of chilli flakes, the earthiness of coriander root, and a medley of Indian spices",
+              "price": 589,
+              "diet": "nonveg"
+            },
+            {
+              "id": "chargrdil-prawn",
+              "name": "Chargrilled Prawn",
+              "desc": "Deep water prawns marinated with dill leaves, cooked in clay oven with cucumber yogurt",
+              "price": 959,
+              "diet": "nonveg"
+            },
+            {
+              "id": "chicken-kalimiri-kebab",
+              "name": "Chicken Kalimiri Kebab",
+              "desc": "Succulent pieces of chicken marinated in black pepper, spices and cream",
+              "price": 589,
+              "diet": "nonveg"
+            },
+            {
+              "id": "chicken-seekh-kabab",
+              "name": "Chicken Seekh Kabab",
+              "desc": "Minced chicken, cheese, ginger, chilli, coriander and Indian spices",
+              "price": 559,
+              "diet": "nonveg"
+            },
+            {
+              "id": "mediterranean-chicken-tikka",
+              "name": "Mediterranean Chicken Tikka",
+              "desc": "Boneless chicken leg, yogurt, Indian spices, lemon zest, basil, thyme, pita, hummus",
+              "price": 589,
+              "diet": "nonveg"
+            },
+            {
+              "id": "tandoori-lollypop",
+              "name": "Tandoori Lollypop",
+              "desc": "Chicken wings marinated with hung curd, mustard oil and Indian spices, cooked in tandoor",
+              "price": 559,
+              "diet": "nonveg"
+            },
+            {
+              "id": "chicken-burashi",
+              "name": "Chicken Burashi",
+              "desc": "Cashew paste, beetroot, hung curd and Indian spices",
+              "price": 589,
+              "diet": "nonveg"
+            },
+            {
+              "id": "butter-garlic-prawns",
+              "name": "Butter Garlic Prawns",
+              "desc": "Prawns, butter, garlic, parsley, lime, garlic bread",
+              "price": 799,
+              "diet": "nonveg"
+            },
+            {
+              "id": "fish-tikka-ajwaini",
+              "name": "Fish Tikka Ajwaini",
+              "desc": "Fish marinated in a blend of curd, mustard oil, fiery chillies, and aromatic caraway seeds",
+              "price": 719,
+              "diet": "nonveg"
+            },
+            {
+              "id": "turkish-lamb-seekh",
+              "name": "Turkish Lamb Seekh",
+              "desc": "Sumac and za'atar marinated mutton seekh served with tzatziki",
+              "price": 849,
+              "diet": "nonveg"
+            },
+            {
+              "id": "tawa-fish-fry",
+              "name": "Tawa Fish Fry",
+              "desc": "Kingfish darne adorned with a medley of ginger, garlic, fragrant Indian spices, coated in gram flour, finished with a zesty squeeze of lemon and a crispy garlic fry",
+              "price": 899,
+              "diet": "nonveg"
+            },
+            {
+              "id": "ghee-roast",
+              "name": "Ghee Roast",
+              "desc": "Legacy of Kundapur, served with Kundapur slow cooked masala",
+              "options": [
+                {
+                  "label": "Chicken",
+                  "price": 589
+                },
+                {
+                  "label": "Mutton",
+                  "price": 999
+                },
+                {
+                  "label": "Prawns",
+                  "price": 939
+                }
+              ],
+              "diet": "nonveg"
+            },
+            {
+              "id": "keema-pav-pull-me-out-chicken",
+              "name": "Keema Pav Pull Me Out Chicken",
+              "desc": "Cheese, green peas and dill leaves",
+              "price": 589,
+              "diet": "nonveg"
+            },
+            {
+              "id": "mediterranean-slider",
+              "name": "Mediterranean Slider",
+              "desc": "Chicken/mutton patty, spicy mayo and cheese slice",
+              "options": [
+                {
+                  "label": "Chicken",
+                  "price": 579
+                },
+                {
+                  "label": "Mutton",
+                  "price": 849
+                }
+              ],
+              "diet": "nonveg"
+            }
+          ]
+        },
+        {
+          "key": "dimsum-bao",
+          "label": "House of Steam",
+          "video": "dimsum-bao.mp4",
+          "holdFrame": null,
+          "scrubLengthVh": 180,
+          "subgroups": [
+            {
+              "subHeader": "House of Steam",
+              "items": [
+                {
+                  "id": "chilli-basil-dimsum",
+                  "name": "Chilli Basil Dimsum",
+                  "desc": "Broccoli, zucchini, carrot, water chestnut, Thai basil and chilli",
+                  "price": 589,
+                  "diet": "veg"
+                },
+                {
+                  "id": "veg-gyoza",
+                  "name": "Veg Gyoza",
+                  "desc": "Exotic vegetable, chilli flakes, sriracha sauce and sweet soya",
+                  "price": 579,
+                  "diet": "veg"
+                },
+                {
+                  "id": "cheese-chilli-oil-dimsum",
+                  "name": "Cheese Chilli Oil Dimsum",
+                  "desc": "Delicious dumplings made with Philadelphia cheese, chilli and chilli oil",
+                  "price": 599,
+                  "diet": "veg"
+                },
+                {
+                  "id": "truffle-edamame-dumpling",
+                  "name": "Truffle Edamame Dumpling",
+                  "desc": "Edamame, water chestnut, truffle paste and truffle oil",
+                  "price": 599,
+                  "diet": "veg"
+                },
+                {
+                  "id": "chicken-gyoza",
+                  "name": "Chicken Gyoza",
+                  "desc": "Chicken minced, water chestnut, carrot, onion, coriander, burnt garlic, chilli, tossed in barbeque sauce",
+                  "price": 609,
+                  "diet": "nonveg"
+                },
+                {
+                  "id": "coriander-chicken-dimsum",
+                  "name": "Coriander and Chicken Dimsum",
+                  "desc": "Chicken minced, fried onion, ginger, fresh coriander and oyster sauce",
+                  "price": 619,
+                  "diet": "nonveg"
+                },
+                {
+                  "id": "wasabi-prawns-har-gow-dumpling",
+                  "name": "Wasabi Prawns Har Gow Dumpling",
+                  "desc": "Minced prawns marinated with sesame oil, bird chilli and bamboo shoot",
+                  "price": 649,
+                  "diet": "nonveg"
+                }
+              ]
+            },
+            {
+              "subHeader": "The Bun Bar",
+              "items": [
+                {
+                  "id": "bombay-masala-bao",
+                  "name": "Bombay Masala Bao",
+                  "desc": "Mumbai style wada finger, fried chilli, coriander feta dip, wrapped in warm bao",
+                  "price": 529,
+                  "diet": "veg"
+                },
+                {
+                  "id": "chilli-paneer-bao",
+                  "name": "Chilli Paneer Bao",
+                  "desc": "Cottage cheese tossed with ginger, garlic, spicy mayo, garnished with crispy fried wontons, wrapped in soft bao",
+                  "price": 559,
+                  "diet": "veg"
+                },
+                {
+                  "id": "thai-curry-chicken-bao",
+                  "name": "Thai Curry Chicken Bao",
+                  "desc": "Succulent pieces of chicken cooked in Thai herb, coconut milk, scallion & fried garlic",
+                  "price": 599,
+                  "diet": "nonveg"
+                },
+                {
+                  "id": "prawns-tempura-bao",
+                  "name": "Prawns Tempura Bao",
+                  "desc": "Tempura fried prawns, lettuce, spicy mayo and pickled cucumber and avocado",
+                  "price": 629,
+                  "diet": "nonveg"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "sushi-bar",
+          "label": "Sushi Bar",
+          "video": "sushi-bar.mp4",
+          "holdFrame": null,
+          "scrubLengthVh": 150,
+          "subgroups": [
+            {
+              "subHeader": "Sushi Bar Veg",
+              "items": [
+                {
+                  "id": "flamin-red-sushi",
+                  "name": "Flamin' Red Sushi",
+                  "desc": "Avocado, cucumber, carrot, tempura flakes, Cheetos, thousand island sauce",
+                  "price": 799,
+                  "diet": "veg"
+                },
+                {
+                  "id": "asparagus-tempura-blue-rice",
+                  "name": "Asparagus Tempura Blue Rice",
+                  "desc": "Crispy fried asparagus, avocado, dressing with spicy mayo",
+                  "price": 799,
+                  "diet": "veg"
+                },
+                {
+                  "id": "24-carat-gold-mexican-roll",
+                  "name": "24 Carat Gold Mexican Roll",
+                  "desc": "Gold foiling rolled with avocado, kimchi and asparagus",
+                  "price": 879,
+                  "diet": "veg"
+                },
+                {
+                  "id": "crispy-asparagus-black-rice-roll",
+                  "name": "Crispy Asparagus Black Rice Roll",
+                  "desc": "Topped with creamy mushroom tartar, potato chips",
+                  "price": 799,
+                  "diet": "veg"
+                }
+              ]
+            },
+            {
+              "subHeader": "Sushi Bar Nonveg",
+              "items": [
+                {
+                  "id": "prawns-tempura-roll",
+                  "name": "Prawns Tempura Roll",
+                  "desc": "Sushi roll made with crispy fried prawns & finished with tanuki flakes",
+                  "price": 889,
+                  "diet": "nonveg"
+                },
+                {
+                  "id": "philadelphia-salmon-cream-cheese-roll",
+                  "name": "Philadelphia Salmon Cream Cheese Roll",
+                  "desc": "Norwegian salmon, avocado and cream cheese",
+                  "price": 1099,
+                  "diet": "nonveg"
+                },
+                {
+                  "id": "california-roll",
+                  "name": "California Roll",
+                  "desc": "Crab sticks, prawns, cucumber, avocado, cream cheese, teriyaki sauce, spicy mayo and tobiko",
+                  "price": 949,
+                  "diet": "nonveg"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "pizza",
+          "label": "Taste of Italy",
+          "video": "pizza.mp4",
+          "holdFrame": null,
+          "scrubLengthVh": 150,
+          "note": "Neapolitan base / Thin crust base",
+          "items": [
+            {
+              "id": "margherita-pizza",
+              "name": "Margherita Pizza",
+              "desc": "Tomato sauce, mozzarella and fresh basil",
+              "price": 589,
+              "diet": "veg"
+            },
+            {
+              "id": "flamingo-pizza",
+              "name": "Flamingo Pizza",
+              "desc": "Basil pesto, mozzarella, cheddar, parmesan, Cheetos, confit tomato, chilli flakes",
+              "price": 699,
+              "diet": "veg"
+            },
+            {
+              "id": "paneer-tikka-pizza",
+              "name": "Paneer Tikka Pizza",
+              "desc": "Spicy tomato sauce, mozzarella, clay oven roasted paneer, onion, capsicum, green chilli and coriander",
+              "price": 619,
+              "diet": "veg"
+            },
+            {
+              "id": "pizza-verdure",
+              "name": "Pizza Verdure",
+              "desc": "Oven roasted zucchini, spinach, mushroom, bell peppers, olives, jalapeño, mozzarella, basil pesto and parmesan",
+              "price": 619,
+              "diet": "veg"
+            },
+            {
+              "id": "creamy-four-cheese-truffle-pizza",
+              "name": "Creamy Four Cheese Truffle Pizza",
+              "desc": "Mozzarella, cheddar, goat cheese, parmesan, béchamel, truffle oil",
+              "price": 669,
+              "diet": "veg"
+            },
+            {
+              "id": "harissa-chicken-pizza",
+              "name": "Harissa Chicken Pizza",
+              "desc": "Harissa marinated grilled chicken, ring onion, mozzarella, drizzled with spicy aioli",
+              "price": 679,
+              "diet": "nonveg"
+            },
+            {
+              "id": "signature-pizza",
+              "name": "Signature Pizza",
+              "desc": "Tomato sauce, pomegranate, pesto, oven roasted chicken, rocket leaves and sundried tomatoes",
+              "price": 699,
+              "diet": "nonveg"
+            },
+            {
+              "id": "spicy-meatball-pizza",
+              "name": "Spicy Meatball Pizza",
+              "desc": "Spicy chicken meatball, jalapeno and goat cheese",
+              "price": 689,
+              "diet": "nonveg"
+            }
+          ]
+        },
+        {
+          "key": "pasta-risotto",
+          "label": "Pasta and Risotto",
+          "video": "pasta-risotto.mp4",
+          "holdFrame": null,
+          "scrubLengthVh": 150,
+          "items": [
+            {
+              "id": "choice-of-pasta",
+              "name": "Choice of Pasta",
+              "desc": "Penne / Spaghetti. Choice of sauce - Alfredo / Arrabbiata / Mama Rosa / Alla Pesto",
+              "price": 689,
+              "diet": "veg"
+            },
+            {
+              "id": "spaghetti-aglio-olio",
+              "name": "Spaghetti Aglio Olio",
+              "desc": "Spaghetti, chilli flakes, sliced garlic, olive oil, basil, black olives, parmesan",
+              "price": 689,
+              "diet": "veg"
+            },
+            {
+              "id": "spaghetti-truffle-cacio-e-pepe",
+              "name": "Spaghetti Truffle Cacio E Pepe",
+              "desc": "Al dente spaghetti coated in a divine combination of truffle-infused mushroom stock and freshly ground black pepper, finished with a drizzle of truffle oil",
+              "price": 729,
+              "diet": "veg"
+            },
+            {
+              "id": "bloody-mary-sauce-pasta",
+              "name": "Bloody Mary Sauce",
+              "desc": "Spaghetti/Penne. Tomato sauce, vodka, celery, garlic, onion and parmesan",
+              "price": 689,
+              "diet": "veg"
+            },
+            {
+              "id": "spaghetti-pescatore",
+              "name": "Spaghetti Pescatore",
+              "desc": "Spaghetti, sauteed prawns, seafood emulsion and kaffir lime",
+              "price": 959,
+              "diet": "nonveg"
+            },
+            {
+              "id": "sundried-tomato-risotto",
+              "name": "Sundried Tomato Risotto",
+              "desc": "Classic Italian arborio rice, sundried tomato pesto and parmesan cheese",
+              "price": 699,
+              "diet": "veg"
+            },
+            {
+              "id": "saffron-prawns-risotto",
+              "name": "Saffron Prawns Risotto",
+              "desc": "Arborio rice cooked in creamy saffron and parmesan cheese",
+              "price": 879,
+              "diet": "nonveg"
+            },
+            {
+              "id": "smoked-chicken-risotto",
+              "name": "Smoked Chicken Risotto",
+              "desc": "Classic Italian arborio rice flavoured with smoked chicken",
+              "price": 779,
+              "diet": "nonveg"
+            }
+          ]
+        },
+        {
+          "key": "veg-mains",
+          "label": "All Together Veg",
+          "video": "veg-mains.mp4",
+          "holdFrame": null,
+          "scrubLengthVh": 250,
+          "items": [
+            {
+              "id": "mediterranean-veg-bowl",
+              "name": "Mediterranean Veg Bowl",
+              "desc": "Cottage cheese kebab, pilaf rice, chilli curd, pickled vegetables",
+              "price": 599,
+              "diet": "veg"
+            },
+            {
+              "id": "nawabi-subzi",
+              "name": "Nawabi Subzi",
+              "desc": "Broccoli, bell peppers, zucchini, green peas, mushroom, makhani gravy and a medley of Indian spices",
+              "price": 529,
+              "diet": "veg"
+            },
+            {
+              "id": "firangi-mix-veg",
+              "name": "Firangi Mix Veg",
+              "desc": "Onion & cashew gravy, mix veggies and Indian spices",
+              "price": 529,
+              "diet": "veg"
+            },
+            {
+              "id": "makhmali-veg",
+              "name": "Makhmali Veg",
+              "desc": "Zucchini, broccoli, bell peppers, paneer, fried cashewnut, brown onion gravy and Indian spices",
+              "price": 529,
+              "diet": "veg"
+            },
+            {
+              "id": "veg-mastani",
+              "name": "Veg Mastani",
+              "desc": "Chopped mix vegetable, methi leaves, tomato & onion gravy, cream and butter",
+              "price": 529,
+              "diet": "veg"
+            },
+            {
+              "id": "veg-kolhapuri",
+              "name": "Veg Kolhapuri",
+              "desc": "Mixture of veggies cooked in onion tomato masala & spicy blends",
+              "price": 529,
+              "diet": "veg"
+            },
+            {
+              "id": "nilgiri-spicy-vegetable-curry",
+              "name": "Nilgiri Spicy Vegetable Curry",
+              "desc": "Makhana, coconut milk, coriander",
+              "price": 529,
+              "diet": "veg"
+            },
+            {
+              "id": "paneer-lababdar",
+              "name": "Paneer Lababdar",
+              "desc": "Brown onion gravy, paneer, Indian spices, cream and butter",
+              "price": 599,
+              "diet": "veg"
+            },
+            {
+              "id": "nehru-place-paneer-makhani",
+              "name": "Nehru Place Paneer Makhani",
+              "desc": "Succulent pieces of paneer cooked in makhani gravy",
+              "price": 599,
+              "diet": "veg"
+            },
+            {
+              "id": "ptm-karo",
+              "name": "PTM Karo...",
+              "desc": "Paneer tikka masala",
+              "price": 599,
+              "diet": "veg"
+            },
+            {
+              "id": "tin-mirch-ka-paneer",
+              "name": "Tin Mirch Ka Paneer",
+              "desc": "Malai paneer slowly simmered with a medley of peppers and chilli",
+              "price": 599,
+              "diet": "veg"
+            },
+            {
+              "id": "jaipuri-vegetable-kofta",
+              "name": "Jaipuri Vegetable Kofta",
+              "desc": "Veg kofta cooked in brown onion and cashew gravy, Indian spices, cream and butter",
+              "price": 639,
+              "diet": "veg"
+            },
+            {
+              "id": "palak-paneer-kofta",
+              "name": "Palak Paneer Kofta",
+              "desc": "Cottage cheese, palak dumplings, creamy palak gravy",
+              "price": 639,
+              "diet": "veg"
+            },
+            {
+              "id": "smoked-dal-makhani",
+              "name": "Smoked Dal Makhani",
+              "desc": "Black urad, rajma, whole spice, tomato puree, butter and cream",
+              "price": 499,
+              "diet": "veg"
+            },
+            {
+              "id": "yellow-dal-fry",
+              "name": "Yellow Dal Fry",
+              "price": 399,
+              "diet": "veg"
+            },
+            {
+              "id": "yellow-dal-tadka",
+              "name": "Yellow Dal Tadka",
+              "desc": "Soft cooked toor dal, whole spice, onion, tomato, garlic, coriander",
+              "price": 419,
+              "diet": "veg"
+            },
+            {
+              "id": "dum-veg-biryani",
+              "name": "Dum Veg Biryani",
+              "desc": "Long grain basmati rice infused with Indian spices, a medley of vibrant vegetables, served with raita",
+              "price": 569,
+              "diet": "veg"
+            },
+            {
+              "id": "firecracker-rice-veg",
+              "name": "Firecracker Rice (Veg)",
+              "desc": "An enticing mix of exotic vegetables, infused with chilli paste, rice wine, sake, mirin, served over fragrant jasmine rice, heightened by togarashi",
+              "price": 639,
+              "diet": "veg"
+            },
+            {
+              "id": "pan-fried-noodles-veg",
+              "name": "Pan Fried Noodles (Veg)",
+              "desc": "Stir-fried vegetables elegantly perched atop crispy, golden pan-fried noodles",
+              "price": 599,
+              "diet": "veg"
+            },
+            {
+              "id": "cottage-cheese-kung-pao",
+              "name": "Cottage Cheese Kung Pao with Garlic Fried Rice",
+              "desc": "A symphony of exotic veggies, water chestnuts, chillies, oyster sauce, and sesame oil",
+              "price": 609,
+              "diet": "veg"
+            },
+            {
+              "id": "green-thai-curry",
+              "name": "Green Thai Curry",
+              "desc": "Exotic vegetables, water chestnut, served with jasmine rice",
+              "price": 629,
+              "diet": "veg"
+            },
+            {
+              "id": "tamarind-chilli-udon-noodles-veg",
+              "name": "Tamarind Chilli Udon Noodles (Veg)",
+              "desc": "Tamarind soy, mixed veggies, homemade chilli oil and peanuts",
+              "price": 599,
+              "diet": "veg"
+            },
+            {
+              "id": "chilli-soba-noodles-veg",
+              "name": "Chilli Soba Noodles (Veg)",
+              "desc": "Buckwheat noodles tossed with veggies and chilli oil",
+              "price": 589,
+              "diet": "veg"
+            }
+          ]
+        },
+        {
+          "key": "nonveg-mains",
+          "label": "All Together Nonveg",
+          "video": "nonveg-mains.mp4",
+          "holdFrame": null,
+          "scrubLengthVh": 300,
+          "items": [
+            {
+              "id": "mediterranean-chicken-bowl",
+              "name": "Mediterranean Chicken Bowl",
+              "desc": "Chicken kebab, pilaf rice, chilli curd, pickled vegetables",
+              "price": 709,
+              "diet": "nonveg"
+            },
+            {
+              "id": "nizami-murgh",
+              "name": "Nizami Murgh",
+              "desc": "Clay oven roasted chicken, Mughlai style creamy mild gravy",
+              "price": 719,
+              "diet": "nonveg"
+            },
+            {
+              "id": "east-india-chicken-curry",
+              "name": "East India Chicken Curry",
+              "desc": "Chicken, onion, curry leaves, chilli, peanut, black pepper, Indian spices",
+              "price": 669,
+              "diet": "nonveg"
+            },
+            {
+              "id": "butter-chicken",
+              "name": "Butter Chicken",
+              "desc": "Clay oven roasted pulled chicken, makhani gravy, cream, butter",
+              "price": 719,
+              "diet": "nonveg"
+            },
+            {
+              "id": "awadhi-chicken-curry",
+              "name": "Awadhi Chicken Curry",
+              "desc": "Chicken cooked in brown gravy, roasted coriander seeds, Indian spices, curd, cream and butter",
+              "price": 669,
+              "diet": "nonveg"
+            },
+            {
+              "id": "chicken-amritsari",
+              "name": "Chicken Amritsari",
+              "desc": "Boneless chicken, Indian spices, tomato & onion gravy, grated boiled egg",
+              "price": 669,
+              "diet": "nonveg"
+            },
+            {
+              "id": "chicken-cafreal",
+              "name": "Chicken Cafreal",
+              "desc": "Succulent chicken cooked in vibrant spicy green masala",
+              "price": 669,
+              "diet": "nonveg"
+            },
+            {
+              "id": "chicken-korma",
+              "name": "Chicken Korma",
+              "desc": "Yogurt, ghee and aromatic spices, fried onion & ground nut paste",
+              "price": 669,
+              "diet": "nonveg"
+            },
+            {
+              "id": "sukkah-kerala-parotta",
+              "name": "Sukkah with Kerala Parotta",
+              "desc": "Coconut flavoured and spicy",
+              "options": [
+                {
+                  "label": "Chicken",
+                  "price": 669
+                },
+                {
+                  "label": "Mutton",
+                  "price": 999
+                }
+              ],
+              "diet": "nonveg"
+            },
+            {
+              "id": "egg-curry-steam-rice",
+              "name": "Egg Curry with Steam Rice",
+              "desc": "Mustard oil, garlic, onion, chilli, tomato and chef special masala",
+              "price": 489,
+              "diet": "nonveg"
+            },
+            {
+              "id": "malvani-prawns-curry",
+              "name": "Malvani Prawns Curry",
+              "desc": "Served with indrayani rice",
+              "price": 959,
+              "diet": "nonveg"
+            },
+            {
+              "id": "madras-fish-curry",
+              "name": "Madras Fish Curry",
+              "desc": "Surmai fish, ginger & garlic, madras curry powder, coconut milk, mustard & curry leaves, served with lemon rice",
+              "price": 959,
+              "diet": "nonveg"
+            },
+            {
+              "id": "mutton-rogan-josh",
+              "name": "Mutton Rogan Josh",
+              "desc": "Slow cooked mutton, ghee, aromatic spices, curd, dry red chillies",
+              "price": 999,
+              "diet": "nonveg"
+            },
+            {
+              "id": "gharguti-mutton-curry",
+              "name": "Gharguti Mutton Curry",
+              "desc": "Maharashtrian famous dish, rich gravy, bold and fiery flavours",
+              "price": 999,
+              "diet": "nonveg"
+            },
+            {
+              "id": "kolhapuri",
+              "name": "Kolhapuri",
+              "desc": "Rich & thick gravy, bold and fiery flavours",
+              "options": [
+                {
+                  "label": "Chicken",
+                  "price": 669
+                },
+                {
+                  "label": "Mutton",
+                  "price": 999
+                }
+              ],
+              "diet": "nonveg"
+            },
+            {
+              "id": "dum-biryani",
+              "name": "Dum Biryani",
+              "desc": "Long grain basmati rice infused with Indian spices, served with raita",
+              "options": [
+                {
+                  "label": "Egg",
+                  "price": 649
+                },
+                {
+                  "label": "Chicken",
+                  "price": 709
+                },
+                {
+                  "label": "Mutton",
+                  "price": 999
+                },
+                {
+                  "label": "Prawns",
+                  "price": 959
+                }
+              ],
+              "diet": "nonveg"
+            },
+            {
+              "id": "red-thai-curry",
+              "name": "Red Thai Curry",
+              "desc": "Exotic vegetables, chicken, served with jasmine rice",
+              "price": 719,
+              "diet": "nonveg"
+            },
+            {
+              "id": "firecracker-rice",
+              "name": "Firecracker Rice",
+              "desc": "The perfect balance of chilli paste, rice wine, sake, mirin, served over fragrant jasmine rice, heightened by togarashi",
+              "options": [
+                {
+                  "label": "Chicken",
+                  "price": 719
+                },
+                {
+                  "label": "Prawns",
+                  "price": 839
+                }
+              ],
+              "diet": "nonveg"
+            },
+            {
+              "id": "pan-fried-noodles",
+              "name": "Pan Fried Noodles",
+              "desc": "Adorned with your choice of stir-fried chicken/prawns, creating a symphony of textures",
+              "options": [
+                {
+                  "label": "Chicken",
+                  "price": 689
+                },
+                {
+                  "label": "Prawns",
+                  "price": 819
+                }
+              ],
+              "diet": "nonveg"
+            },
+            {
+              "id": "kung-pao-garlic-egg-fried-rice",
+              "name": "Kung Pao with Garlic Egg Fried Rice",
+              "desc": "A tantalizing mix of water chestnut, chilli, oyster sauce and sesame oil",
+              "options": [
+                {
+                  "label": "Chicken",
+                  "price": 709
+                },
+                {
+                  "label": "Prawns",
+                  "price": 839
+                }
+              ],
+              "diet": "nonveg"
+            },
+            {
+              "id": "tunisian",
+              "name": "Tunisian",
+              "options": [
+                {
+                  "label": "Chicken",
+                  "price": 709,
+                  "desc": "Tender chicken infused with African chilli paste, aromatic spices, lemongrass, served over a bed of coriander chilli-herbed rice"
+                },
+                {
+                  "label": "Lamb",
+                  "price": 999
+                }
+              ],
+              "diet": "nonveg"
+            },
+            {
+              "id": "grilled",
+              "name": "Grilled",
+              "options": [
+                {
+                  "label": "Chicken",
+                  "price": 749,
+                  "desc": "Paprika-marinated sous-vide chicken paired with creamy mashed potatoes and a rich mushroom jus"
+                },
+                {
+                  "label": "Fish",
+                  "price": 959,
+                  "desc": "Pan seared red snapper fish with creamy quinoa risotto, grilled asparagus, caper butter sauce"
+                }
+              ],
+              "diet": "nonveg"
+            },
+            {
+              "id": "tamarind-chilli-udon-noodles",
+              "name": "Tamarind Chilli Udon Noodles",
+              "desc": "Tamarind soy, mixed veggies and peanuts",
+              "options": [
+                {
+                  "label": "Chicken",
+                  "price": 689
+                },
+                {
+                  "label": "Prawns",
+                  "price": 829
+                }
+              ],
+              "diet": "nonveg"
+            },
+            {
+              "id": "chilli-soba-noodles",
+              "name": "Chilli Soba Noodles",
+              "desc": "Buckwheat noodles in chilli oil and chilli paste, complemented by your choice of chicken or prawns",
+              "options": [
+                {
+                  "label": "Chicken",
+                  "price": 689
+                },
+                {
+                  "label": "Prawns",
+                  "price": 829
+                }
+              ],
+              "diet": "nonveg"
+            }
+          ]
+        },
+        {
+          "key": "sides",
+          "label": "Sides",
+          "video": "sides.mp4",
+          "holdFrame": null,
+          "scrubLengthVh": 100,
+          "items": [
+            {
+              "id": "fries",
+              "name": "Fries",
+              "options": [
+                {
+                  "label": "Salted",
+                  "price": 329
+                },
+                {
+                  "label": "Peri Peri",
+                  "price": 339
+                },
+                {
+                  "label": "Truffle",
+                  "price": 359
+                }
+              ],
+              "diet": "veg"
+            },
+            {
+              "id": "garlic-bread",
+              "name": "Garlic Bread",
+              "options": [
+                {
+                  "label": "Plain",
+                  "price": 229
+                },
+                {
+                  "label": "Cheese",
+                  "price": 379
+                }
+              ],
+              "diet": "veg"
+            },
+            {
+              "id": "zatar-pita-bread",
+              "name": "Za'atar Pita Bread",
+              "price": 89,
+              "diet": "veg"
+            },
+            {
+              "id": "roasted-papad",
+              "name": "Roasted Papad",
+              "price": 59,
+              "diet": "veg"
+            }
+          ]
+        },
+        {
+          "key": "charcoal",
+          "label": "From the Charcoal",
+          "video": "charcoal.mp4",
+          "holdFrame": null,
+          "scrubLengthVh": 100,
+          "items": [
+            {
+              "id": "roti",
+              "name": "Roti",
+              "options": [
+                {
+                  "label": "Plain",
+                  "price": 89
+                },
+                {
+                  "label": "Butter",
+                  "price": 109
+                }
+              ],
+              "diet": "veg"
+            },
+            {
+              "id": "naan",
+              "name": "Naan",
+              "options": [
+                {
+                  "label": "Plain",
+                  "price": 119
+                },
+                {
+                  "label": "Butter",
+                  "price": 149
+                },
+                {
+                  "label": "Garlic",
+                  "price": 159
+                },
+                {
+                  "label": "Cheese Garlic",
+                  "price": 329
+                }
+              ],
+              "diet": "veg"
+            },
+            {
+              "id": "paratha",
+              "name": "Paratha",
+              "options": [
+                {
+                  "label": "Lachha",
+                  "price": 149
+                },
+                {
+                  "label": "Malabar",
+                  "price": 159
+                }
+              ],
+              "diet": "veg"
+            }
+          ]
+        },
+        {
+          "key": "staples",
+          "label": "Staples",
+          "video": "staples.mp4",
+          "holdFrame": null,
+          "scrubLengthVh": 100,
+          "items": [
+            {
+              "id": "rice",
+              "name": "Rice",
+              "options": [
+                {
+                  "label": "Steam",
+                  "price": 329
+                },
+                {
+                  "label": "Jeera",
+                  "price": 339
+                },
+                {
+                  "label": "Indrayani",
+                  "price": 359
+                }
+              ],
+              "diet": "veg"
+            },
+            {
+              "id": "fried-rice",
+              "name": "Fried Rice",
+              "options": [
+                {
+                  "label": "Veg",
+                  "price": 359
+                },
+                {
+                  "label": "Egg",
+                  "price": 379
+                },
+                {
+                  "label": "Chicken",
+                  "price": 419
+                },
+                {
+                  "label": "Prawns",
+                  "price": 519
+                }
+              ],
+              "diet": "veg"
+            },
+            {
+              "id": "hakka-style-noodles",
+              "name": "Hakka Style Noodles",
+              "options": [
+                {
+                  "label": "Veg",
+                  "price": 369
+                },
+                {
+                  "label": "Egg",
+                  "price": 389
+                },
+                {
+                  "label": "Chicken",
+                  "price": 429
+                },
+                {
+                  "label": "Prawns",
+                  "price": 529
+                }
+              ],
+              "diet": "veg"
+            }
+          ]
+        },
+        {
+          "key": "sweet-ending",
+          "label": "Sweet Ending",
+          "video": "sweet-ending.mp4",
+          "holdFrame": null,
+          "scrubLengthVh": 130,
+          "items": [
+            {
+              "id": "hazelnut-mousse",
+              "name": "Hazelnut Mousse",
+              "desc": "Hazelnut praline feuilletine crunchy base, dark chocolate & hazelnut mousse, soft caramel with chocolate julipan",
+              "price": 629,
+              "diet": "veg"
+            },
+            {
+              "id": "baklava-cheesecake",
+              "name": "Baklava Cheesecake",
+              "desc": "Creamy baklava cheesecake, pistachio ganache, flaky filo pastry, honey drizzle",
+              "price": 629,
+              "diet": "veg"
+            },
+            {
+              "id": "tres-leches",
+              "name": "Tres Leches",
+              "desc": "Eggless vanilla sponge soaked in three different types of milk",
+              "price": 559,
+              "diet": "veg"
+            },
+            {
+              "id": "tiramisu",
+              "name": "Tiramisu Pull Me Out / Classic Tiramisu",
+              "note": "Contains Egg",
+              "desc": "Mascarpone, kahlua, lady finger",
+              "price": 669,
+              "diet": "nonveg"
+            },
+            {
+              "id": "blueberry-cheesecake",
+              "name": "Blueberry Cheesecake",
+              "note": "Contains Egg",
+              "desc": "Perfectly baked velvety cheesecake complemented with blueberry compote and vanilla bean ice cream",
+              "price": 609,
+              "diet": "nonveg"
+            },
+            {
+              "id": "caramel-custard",
+              "name": "Caramel Custard",
+              "note": "Contains Egg",
+              "desc": "Milk, milkmaid, vanilla beans and caramelized sugar",
+              "price": 399,
+              "diet": "nonveg"
+            },
+            {
+              "id": "ice-cream-double-scoop",
+              "name": "Choice of Ice Cream (Double Scoop)",
+              "desc": "Avocado / Pistachio / Butterscotch",
+              "price": 399,
+              "diet": "veg"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "bar",
+      "label": "Bar",
+      "video": null,
+      "sections": [
+        {
+          "key": "bar",
+          "label": "Bar",
+          "video": "bar.mp4",
+          "holdFrame": null,
+          "subgroups": [
+            {
+              "subHeader": "The Cocktail Studio",
+              "items": [
+                {
+                  "id": "midori-mist",
+                  "name": "Midori Mist",
+                  "desc": "A perfect pairing of melon & cucumber, balanced with lime & finished with a touch of aromatic bitters",
+                  "price": 779
+                },
+                {
+                  "id": "yuzu-bloom",
+                  "name": "Yuzu Bloom",
+                  "desc": "A bright & refreshing gin sour with vibrant yuzu, basil, citrus and a smooth honey finish",
+                  "price": 779
+                },
+                {
+                  "id": "sora",
+                  "name": "Sora",
+                  "desc": "An elegant fusion of butterfly blue tea, lemongrass, and vodka with a crisp finish",
+                  "price": 779
+                },
+                {
+                  "id": "bliss",
+                  "name": "Bliss",
+                  "desc": "A silky blend of orange, elderflower & delicate spice",
+                  "price": 779
+                },
+                {
+                  "id": "ruby-melon-highball",
+                  "name": "Ruby Melon Highball",
+                  "desc": "A refreshing, fruit forward tequila highball with juicy watermelon and Aperol",
+                  "price": 779
+                },
+                {
+                  "id": "nines-picante",
+                  "name": "Nines Picante",
+                  "desc": "A take on a classic picante, tequila, hint of toasted coriander, pickled plum brine, chilli tincture",
+                  "price": 779
+                },
+                {
+                  "id": "yuzu-picante",
+                  "name": "Yuzu Picante",
+                  "desc": "Sharpness of tequila, yuzu, pineapple & lime with fresh jalapeno heat and savoury coriander lift",
+                  "price": 779
+                },
+                {
+                  "id": "smoky-bird",
+                  "name": "Smoky Bird",
+                  "desc": "Perfect blend of hibiscus, passion fruit & coconut syrup with tequila & a touch of smokey whiskey",
+                  "price": 779
+                },
+                {
+                  "id": "roasted-coconut-old-fashioned",
+                  "name": "Roasted Coconut Old Fashioned",
+                  "desc": "Roasted coconut whiskey stirred with brown sugar and bitters, rounded out with a touch of sambuca",
+                  "price": 779
+                },
+                {
+                  "id": "whisky-star",
+                  "name": "Whisky Star",
+                  "desc": "A crisp & exotic whisky cocktail combining starfruit sweetness and bright lime",
+                  "price": 779
+                },
+                {
+                  "id": "tira-miss-u",
+                  "name": "Tira Miss U",
+                  "desc": "A sweet dessert in a glass — rich rum & espresso blended with tiramisu syrup, crowned with silky vanilla foam & a delicate beetroot dust finish",
+                  "price": 779
+                },
+                {
+                  "id": "tikki-passion",
+                  "name": "Tiki Passion",
+                  "desc": "A bold Tiki style cocktail combining juicy pineapple, tangy passion fruit, lime and Campari",
+                  "price": 779
+                }
+              ]
+            },
+            {
+              "subHeader": "Liqueurs & Digestifs",
+              "items": [
+                {
+                  "id": "jagermeister-ice-cold-shot",
+                  "name": "Jagermeister Ice Cold Shot",
+                  "pour30ml": 749,
+                  "bottle": 17000
+                },
+                {
+                  "id": "jager-energy",
+                  "name": "Jager Energy",
+                  "pour30ml": 889,
+                  "bottle": null
+                },
+                {
+                  "id": "baileys-irish-cream",
+                  "name": "Baileys Irish Cream",
+                  "pour30ml": 629,
+                  "bottle": 14000
+                },
+                {
+                  "id": "licor-43",
+                  "name": "Licor 43",
+                  "pour30ml": 629,
+                  "bottle": null
+                },
+                {
+                  "id": "cointreau",
+                  "name": "Cointreau",
+                  "pour30ml": 479,
+                  "bottle": null
+                },
+                {
+                  "id": "aperol",
+                  "name": "Aperol",
+                  "pour30ml": 479,
+                  "bottle": null
+                },
+                {
+                  "id": "campari",
+                  "name": "Campari",
+                  "pour30ml": 479,
+                  "bottle": null
+                }
+              ]
+            },
+            {
+              "subHeader": "Bourbon & Tennessee",
+              "items": [
+                {
+                  "id": "woodford-reserve",
+                  "name": "Woodford Reserve",
+                  "pour30ml": 849,
+                  "bottle": 19000
+                },
+                {
+                  "id": "jim-beam-white",
+                  "name": "Jim Beam White",
+                  "pour30ml": 479,
+                  "bottle": 10500
+                },
+                {
+                  "id": "jd-single-barrel-select",
+                  "name": "Jack Daniel's Single Barrel Select",
+                  "pour30ml": 889,
+                  "bottle": 29000
+                },
+                {
+                  "id": "jd-no-7",
+                  "name": "Jack Daniel's No. 7",
+                  "pour30ml": 689,
+                  "bottle": 15000
+                },
+                {
+                  "id": "jd-flavoured",
+                  "name": "Jack Daniel's",
+                  "note": "Apple / Fire / Honey — same price for any flavour",
+                  "pour30ml": 689,
+                  "bottle": 14500
+                }
+              ]
+            },
+            {
+              "subHeader": "Single Malt",
+              "items": [
+                {
+                  "id": "glenfiddich-gran-reserva-21yo",
+                  "name": "Glenfiddich Gran Reserva 21 Y.O.",
+                  "pour30ml": 4719,
+                  "bottle": 105000
+                },
+                {
+                  "id": "glenfiddich-18yo",
+                  "name": "Glenfiddich 18 Y.O.",
+                  "pour30ml": 1949,
+                  "bottle": 44000
+                },
+                {
+                  "id": "singleton-18yo",
+                  "name": "Singleton 18 Y.O.",
+                  "pour30ml": 1649,
+                  "bottle": 38000
+                },
+                {
+                  "id": "lagavulin-16yo",
+                  "name": "Lagavulin 16 Y.O.",
+                  "pour30ml": 1649,
+                  "bottle": 38000
+                },
+                {
+                  "id": "glenmorangie-12yo",
+                  "name": "Glenmorangie 12 Y.O.",
+                  "pour30ml": 849,
+                  "bottle": 19000
+                },
+                {
+                  "id": "glenlivet-18yo",
+                  "name": "Glenlivet 18 Y.O.",
+                  "pour30ml": 1849,
+                  "bottle": 42000
+                },
+                {
+                  "id": "royal-brackla-12yo",
+                  "name": "Royal Brackla 12 Y.O.",
+                  "pour30ml": 1319,
+                  "bottle": 29500
+                },
+                {
+                  "id": "aberfeldy-16yo",
+                  "name": "Aberfeldy 16 Y.O.",
+                  "pour30ml": 1429,
+                  "bottle": 32500
+                },
+                {
+                  "id": "dalmore-12yo",
+                  "name": "Dalmore 12 Y.O.",
+                  "pour30ml": 1369,
+                  "bottle": 30000
+                },
+                {
+                  "id": "macallan-12yo-double-cask",
+                  "name": "Macallan 12 Y.O. Double Cask",
+                  "pour30ml": 1319,
+                  "bottle": 29500
+                },
+                {
+                  "id": "oban-14yo",
+                  "name": "Oban 14 Y.O.",
+                  "pour30ml": 1319,
+                  "bottle": 29500
+                },
+                {
+                  "id": "caol-ila-12yo",
+                  "name": "Caol Ila 12 Y.O.",
+                  "pour30ml": 1169,
+                  "bottle": 26500
+                },
+                {
+                  "id": "laphroaig-10yo",
+                  "name": "Laphroaig 10 Y.O.",
+                  "pour30ml": 949,
+                  "bottle": 21000
+                },
+                {
+                  "id": "singleton-15yo",
+                  "name": "Singleton 15 Y.O.",
+                  "pour30ml": 1269,
+                  "bottle": 28500
+                },
+                {
+                  "id": "glenlivet-15yo-700ml",
+                  "name": "Glenlivet 15 Y.O. (700 ml)",
+                  "pour30ml": 1379,
+                  "bottle": 30000
+                },
+                {
+                  "id": "glenfiddich-15yo-700ml",
+                  "name": "Glenfiddich 15 Y.O. (700 ml)",
+                  "pour30ml": 1379,
+                  "bottle": 30000
+                },
+                {
+                  "id": "aberfeldy-12yo",
+                  "name": "Aberfeldy 12 Y.O.",
+                  "pour30ml": 1049,
+                  "bottle": 24000
+                },
+                {
+                  "id": "longitude-77",
+                  "name": "Longitude 77",
+                  "pour30ml": 889,
+                  "bottle": 18000
+                },
+                {
+                  "id": "indri",
+                  "name": "Indri",
+                  "pour30ml": 789,
+                  "bottle": 18000
+                },
+                {
+                  "id": "singleton-12yo",
+                  "name": "Singleton 12 Y.O.",
+                  "pour30ml": 889,
+                  "bottle": 20000
+                },
+                {
+                  "id": "talisker-10yo",
+                  "name": "Talisker 10 Y.O.",
+                  "pour30ml": 889,
+                  "bottle": 20000
+                },
+                {
+                  "id": "godawan-no-2",
+                  "name": "Godawan No. 2",
+                  "pour30ml": 789,
+                  "bottle": 18000
+                },
+                {
+                  "id": "glenfiddich-12yo-2",
+                  "name": "Glenfiddich 12 Y.O.",
+                  "pour30ml": 889,
+                  "bottle": 20500
+                },
+                {
+                  "id": "glenlivet-12yo-double-oak",
+                  "name": "Glenlivet 12 Y.O. Double Oak",
+                  "pour30ml": 889,
+                  "bottle": 20500
+                }
+              ]
+            },
+            {
+              "subHeader": "Irish Whiskey",
+              "items": [
+                {
+                  "id": "jameson-black-barrel",
+                  "name": "Jameson Black Barrel",
+                  "pour30ml": 569,
+                  "bottle": 14500
+                },
+                {
+                  "id": "bushmills-12yrs",
+                  "name": "Bushmills 12 Yrs",
+                  "pour30ml": 849,
+                  "bottle": 19000
+                },
+                {
+                  "id": "jameson-triple-distilled",
+                  "name": "Jameson Triple Distilled",
+                  "pour30ml": 539,
+                  "bottle": 12000
+                },
+                {
+                  "id": "bushmills-original",
+                  "name": "Bushmills Original",
+                  "pour30ml": 579,
+                  "bottle": 13000
+                }
+              ]
+            },
+            {
+              "subHeader": "Japanese Whisky",
+              "items": [
+                {
+                  "id": "yamazaki-12yo",
+                  "name": "The Yamazaki 12 Y.O.",
+                  "pour30ml": 2999,
+                  "bottle": 68900
+                },
+                {
+                  "id": "hibiki",
+                  "name": "Hibiki",
+                  "pour30ml": 2329,
+                  "bottle": 51940
+                },
+                {
+                  "id": "toki-700ml",
+                  "name": "Toki (700 ml)",
+                  "pour30ml": 849,
+                  "bottle": 19080
+                }
+              ]
+            },
+            {
+              "subHeader": "Rum",
+              "items": [
+                {
+                  "id": "ron-diplomatico-reserve",
+                  "name": "Ron Diplomatico Reserve",
+                  "pour30ml": 949,
+                  "bottle": 21000
+                },
+                {
+                  "id": "kraken-black-spicy-rum-700ml",
+                  "name": "The Kraken Black Spiced Rum (700 ml)",
+                  "pour30ml": 889,
+                  "bottle": 20000
+                },
+                {
+                  "id": "bacardi-reserva-ocho-8yo",
+                  "name": "Bacardi Reserva Ocho 8 Y.O.",
+                  "pour30ml": 789,
+                  "bottle": 18000
+                },
+                {
+                  "id": "bacardi-cuatro-4yo",
+                  "name": "Bacardi Cuatro 4 Y.O.",
+                  "pour30ml": 529,
+                  "bottle": 15000
+                },
+                {
+                  "id": "bacardi-carta-blanca",
+                  "name": "Bacardi Carta Blanca",
+                  "pour30ml": 419,
+                  "bottle": 10000
+                },
+                {
+                  "id": "bacardi-black",
+                  "name": "Bacardi Black",
+                  "pour30ml": 419,
+                  "bottle": 10000
+                }
+              ]
+            },
+            {
+              "subHeader": "Blended Scotch",
+              "items": [
+                {
+                  "id": "chivas-regal-25yo",
+                  "name": "Chivas Regal 25 Y.O.",
+                  "pour30ml": 4249,
+                  "bottle": 95000
+                },
+                {
+                  "id": "jw-blue-label",
+                  "name": "Johnnie Walker Blue Label",
+                  "pour30ml": 3649,
+                  "bottle": 81000
+                },
+                {
+                  "id": "royal-salute-21yo",
+                  "name": "Royal Salute 21 Y.O.",
+                  "pour30ml": 3249,
+                  "bottle": 75000
+                },
+                {
+                  "id": "jw-18yo",
+                  "name": "Johnnie Walker 18 Y.O.",
+                  "pour30ml": 1589,
+                  "bottle": 36000
+                },
+                {
+                  "id": "jw-gold-label",
+                  "name": "Johnnie Walker Gold Label",
+                  "pour30ml": 1269,
+                  "bottle": 28000
+                },
+                {
+                  "id": "dewars-18yo",
+                  "name": "Dewar's 18 YO",
+                  "pour30ml": 1479,
+                  "bottle": 32000
+                },
+                {
+                  "id": "chivas-regal-18yo",
+                  "name": "Chivas Regal 18 Y.O.",
+                  "pour30ml": 1379,
+                  "bottle": 31500
+                },
+                {
+                  "id": "chivas-regal-xv-15yo",
+                  "name": "Chivas Regal XV 15 Y.O.",
+                  "pour30ml": 989,
+                  "bottle": 22000
+                },
+                {
+                  "id": "dewars-15yo",
+                  "name": "Dewar's 15 YO",
+                  "pour30ml": 979,
+                  "bottle": 21000
+                },
+                {
+                  "id": "jw-double-black",
+                  "name": "Johnnie Walker Double Black",
+                  "pour30ml": 849,
+                  "bottle": 19000
+                },
+                {
+                  "id": "monkey-shoulder-700ml",
+                  "name": "Monkey Shoulder (700 ml)",
+                  "pour30ml": 849,
+                  "bottle": 19000
+                },
+                {
+                  "id": "jw-black-label",
+                  "name": "Johnnie Walker Black Label",
+                  "pour30ml": 749,
+                  "bottle": 17500
+                },
+                {
+                  "id": "chivas-regal-12yo",
+                  "name": "Chivas Regal 12 Y.O.",
+                  "pour30ml": 749,
+                  "bottle": 17500
+                },
+                {
+                  "id": "dewars-12yo",
+                  "name": "Dewar's 12 YO",
+                  "pour30ml": 749,
+                  "bottle": 16500
+                },
+                {
+                  "id": "jw-blonde",
+                  "name": "Johnnie Walker Blonde",
+                  "pour30ml": 539,
+                  "bottle": 12000
+                },
+                {
+                  "id": "jb-rare",
+                  "name": "J&B Rare",
+                  "pour30ml": 469,
+                  "bottle": 10500
+                },
+                {
+                  "id": "jw-red-label",
+                  "name": "JW Red Label",
+                  "pour30ml": 469,
+                  "bottle": 10500
+                },
+                {
+                  "id": "ballantines-finest",
+                  "name": "Ballantine's Finest",
+                  "pour30ml": 469,
+                  "bottle": 10500
+                }
+              ]
+            },
+            {
+              "subHeader": "Gin",
+              "items": [
+                {
+                  "id": "monkey-47-500ml",
+                  "name": "Monkey 47 (500 ml)",
+                  "pour30ml": 949,
+                  "bottle": 16000
+                },
+                {
+                  "id": "tanqueray-no-ten-1000ml",
+                  "name": "Tanqueray N° Ten (1000 ml)",
+                  "pour30ml": 739,
+                  "bottle": 22000
+                },
+                {
+                  "id": "hendricks",
+                  "name": "Hendrick's",
+                  "pour30ml": 849,
+                  "bottle": 19000
+                },
+                {
+                  "id": "bombay-sapphire",
+                  "name": "Bombay Sapphire",
+                  "pour30ml": 579,
+                  "bottle": 13000
+                },
+                {
+                  "id": "haymans-old-tom",
+                  "name": "Hayman's Old Tom",
+                  "pour30ml": 689,
+                  "bottle": 15000
+                },
+                {
+                  "id": "roku",
+                  "name": "Roku",
+                  "pour30ml": 789,
+                  "bottle": 18000
+                },
+                {
+                  "id": "malfy-limone",
+                  "name": "Malfy Limone",
+                  "pour30ml": 739,
+                  "bottle": 16000
+                },
+                {
+                  "id": "tanqueray",
+                  "name": "Tanqueray",
+                  "pour30ml": 529,
+                  "bottle": 12500
+                }
+              ]
+            },
+            {
+              "subHeader": "Vodka",
+              "items": [
+                {
+                  "id": "beluga-gold-line",
+                  "name": "Beluga Gold Line",
+                  "pour30ml": 3699,
+                  "bottle": 82000
+                },
+                {
+                  "id": "grey-goose-altius",
+                  "name": "Grey Goose Altius",
+                  "pour30ml": 2649,
+                  "bottle": 59000
+                },
+                {
+                  "id": "roberto-cavalli",
+                  "name": "Roberto Cavalli",
+                  "pour30ml": 1149,
+                  "bottle": 26000
+                },
+                {
+                  "id": "haku-vodka",
+                  "name": "Haku Vodka",
+                  "pour30ml": 789,
+                  "bottle": 18000
+                },
+                {
+                  "id": "beluga-transatlantic",
+                  "name": "Beluga Transatlantic",
+                  "pour30ml": 949,
+                  "bottle": 21000
+                },
+                {
+                  "id": "belvedere",
+                  "name": "Belvedere",
+                  "pour30ml": 789,
+                  "bottle": 18000
+                },
+                {
+                  "id": "ciroc",
+                  "name": "Ciroc",
+                  "pour30ml": 689,
+                  "bottle": 15500
+                },
+                {
+                  "id": "grey-goose-original",
+                  "name": "Grey Goose Original",
+                  "pour30ml": 749,
+                  "bottle": 17500
+                },
+                {
+                  "id": "onegin-vodka",
+                  "name": "Onegin Vodka",
+                  "pour30ml": 729,
+                  "bottle": 16500
+                },
+                {
+                  "id": "stoli-gold",
+                  "name": "Stoli Gold",
+                  "pour30ml": 629,
+                  "bottle": 14000
+                },
+                {
+                  "id": "absolut-blue",
+                  "name": "Absolut Blue",
+                  "pour30ml": 479,
+                  "bottle": 10500
+                },
+                {
+                  "id": "ketel-one",
+                  "name": "Ketel One",
+                  "pour30ml": 479,
+                  "bottle": 10500
+                }
+              ]
+            },
+            {
+              "subHeader": "Tequila",
+              "items": [
+                {
+                  "id": "clase-azul-reposado",
+                  "name": "Clase Azul Reposado",
+                  "pour30ml": 5399,
+                  "bottle": 121000
+                },
+                {
+                  "id": "1800-milenio",
+                  "name": "1800 Milenio",
+                  "pour30ml": 4219,
+                  "bottle": 93000
+                },
+                {
+                  "id": "don-julio-1942",
+                  "name": "Don Julio 1942®",
+                  "pour30ml": 4219,
+                  "bottle": 93000
+                },
+                {
+                  "id": "patron-el-alto",
+                  "name": "Patron El Alto",
+                  "pour30ml": 3919,
+                  "bottle": 90000
+                },
+                {
+                  "id": "1800-cristalino",
+                  "name": "1800 Cristalino",
+                  "pour30ml": 1999,
+                  "bottle": 45000
+                },
+                {
+                  "id": "kah-reposado",
+                  "name": "Kah Reposado",
+                  "pour30ml": 1849,
+                  "bottle": 42000
+                },
+                {
+                  "id": "don-julio-anejo",
+                  "name": "Don Julio Añejo",
+                  "pour30ml": 1799,
+                  "bottle": 40000
+                },
+                {
+                  "id": "1800-anejo",
+                  "name": "1800 Anejo",
+                  "pour30ml": 1479,
+                  "bottle": 32000
+                },
+                {
+                  "id": "1800-reposado",
+                  "name": "1800 Reposado",
+                  "pour30ml": 1149,
+                  "bottle": 26000
+                },
+                {
+                  "id": "don-julio-reposado",
+                  "name": "Don Julio Reposado",
+                  "pour30ml": 1269,
+                  "bottle": 28000
+                },
+                {
+                  "id": "patron-reposado",
+                  "name": "Patrón Reposado",
+                  "pour30ml": 1269,
+                  "bottle": 28000
+                },
+                {
+                  "id": "patron-anejo",
+                  "name": "Patrón Añejo",
+                  "pour30ml": 1799,
+                  "bottle": 41000
+                },
+                {
+                  "id": "1800-blanco",
+                  "name": "1800 Blanco",
+                  "pour30ml": 949,
+                  "bottle": 21000
+                },
+                {
+                  "id": "patron-silver",
+                  "name": "Patrón Silver",
+                  "pour30ml": 1049,
+                  "bottle": 24000
+                },
+                {
+                  "id": "don-julio-blanco",
+                  "name": "Don Julio Blanco",
+                  "pour30ml": 1049,
+                  "bottle": 24000
+                },
+                {
+                  "id": "jose-cuervo-silver",
+                  "name": "Jose Cuervo Silver",
+                  "pour30ml": 529,
+                  "bottle": 12500
+                },
+                {
+                  "id": "jose-cuervo-reposado",
+                  "name": "Jose Cuervo Reposado",
+                  "pour30ml": 529,
+                  "bottle": 12500
+                }
+              ]
+            },
+            {
+              "subHeader": "Mezcal",
+              "items": [
+                {
+                  "id": "mezcal-creyente",
+                  "name": "Creyente",
+                  "pour30ml": 999,
+                  "bottle": 22000
+                },
+                {
+                  "id": "mezcal-el-recuerdo",
+                  "name": "El Recuerdo",
+                  "pour30ml": 889,
+                  "bottle": 20000
+                }
+              ]
+            },
+            {
+              "subHeader": "Brandy / Cognac",
+              "items": [
+                {
+                  "id": "hennessy-xo",
+                  "name": "Hennessy XO",
+                  "price": 5799
+                },
+                {
+                  "id": "remy-martin-vsop",
+                  "name": "Remy Martin VSOP",
+                  "price": 1689
+                },
+                {
+                  "id": "hennessy-vsop",
+                  "name": "Hennessy VSOP",
+                  "price": 1149
+                },
+                {
+                  "id": "hennessy-vs",
+                  "name": "Hennessy VS",
+                  "price": 899
+                },
+                {
+                  "id": "martell-vs-single-distillery",
+                  "name": "Martell VS Single Distillery",
+                  "price": 849
+                }
+              ]
+            },
+            {
+              "subHeader": "Champagne / Sparkling",
+              "items": [
+                {
+                  "id": "dom-perignon",
+                  "name": "Dom Pérignon",
+                  "glass": null,
+                  "bottle": 95000
+                },
+                {
+                  "id": "moet-chandon-rose",
+                  "name": "Moët & Chandon Rose",
+                  "glass": null,
+                  "bottle": 35000
+                },
+                {
+                  "id": "moet-chandon-brut-imperial",
+                  "name": "Moët & Chandon Brut Imperial",
+                  "glass": null,
+                  "bottle": 30000
+                },
+                {
+                  "id": "villa-sandi-prosecco",
+                  "name": "Villa Sandi Prosecco",
+                  "glass": 1149,
+                  "bottle": 5800
+                },
+                {
+                  "id": "chandon-brut",
+                  "name": "Chandon Brut",
+                  "glass": 949,
+                  "bottle": 4750
+                },
+                {
+                  "id": "chandon-rose",
+                  "name": "Chandon Rosé",
+                  "glass": 949,
+                  "bottle": 4750
+                }
+              ]
+            },
+            {
+              "subHeader": "Rosé Wine",
+              "items": [
+                {
+                  "id": "stonecross-pinotage-rose",
+                  "name": "Stonecross Pinotage Rose",
+                  "glass": null,
+                  "bottle": null
+                },
+                {
+                  "id": "le-grand-rose",
+                  "name": "Le Grand Rose",
+                  "glass": 789,
+                  "bottle": 3999
+                }
+              ]
+            },
+            {
+              "subHeader": "Red Wine",
+              "items": [
+                {
+                  "id": "metal-label-durif",
+                  "name": "Metal Label Durif",
+                  "note": "Australia",
+                  "glass": null,
+                  "bottle": 6000
+                },
+                {
+                  "id": "1959-merlot",
+                  "name": "19:59 Merlot",
+                  "note": "France",
+                  "glass": 789,
+                  "bottle": 3800
+                },
+                {
+                  "id": "gato-negro-pinot-noir",
+                  "name": "Gato Negro Pinot Noir",
+                  "note": "Chile",
+                  "glass": 789,
+                  "bottle": 3800
+                },
+                {
+                  "id": "outback-jack-shiraz",
+                  "name": "Outback Jack Shiraz",
+                  "glass": 789,
+                  "bottle": 3800
+                },
+                {
+                  "id": "fratelli-sette",
+                  "name": "Fratelli Sette",
+                  "glass": 789,
+                  "bottle": 3800
+                }
+              ]
+            },
+            {
+              "subHeader": "White Wine",
+              "items": [
+                {
+                  "id": "gato-negro-sauvignon-blanc",
+                  "name": "Gato Negro Sauvignon Blanc",
+                  "note": "Chile",
+                  "glass": 795,
+                  "bottle": 3800
+                },
+                {
+                  "id": "1959-riesling",
+                  "name": "19:59 Riesling",
+                  "note": "Germany",
+                  "glass": 795,
+                  "bottle": 3800
+                },
+                {
+                  "id": "outback-jack-chardonnay",
+                  "name": "Outback Jack Chardonnay",
+                  "glass": 795,
+                  "bottle": 3800
+                },
+                {
+                  "id": "fantini-pinot-grigio",
+                  "name": "Fantini Pinot Grigio",
+                  "note": "Italy",
+                  "glass": 795,
+                  "bottle": 3800
+                }
+              ]
+            },
+            {
+              "subHeader": "Beer",
+              "items": [
+                {
+                  "id": "hoegaarden",
+                  "name": "Hoegaarden",
+                  "price": 689
+                },
+                {
+                  "id": "corona",
+                  "name": "Corona",
+                  "price": 689
+                },
+                {
+                  "id": "budweiser",
+                  "name": "Budweiser",
+                  "price": 499
+                },
+                {
+                  "id": "kingfisher-ultra",
+                  "name": "Kingfisher Ultra",
+                  "price": 499
+                },
+                {
+                  "id": "heineken-silver",
+                  "name": "Heineken Silver",
+                  "price": 499
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "beverages",
+      "label": "Beverages",
+      "video": null,
+      "sections": [
+        {
+          "key": "cold-press-juices",
+          "label": "Cold Press Juices",
+          "video": "cold-press-juices.mp4",
+          "holdFrame": null,
+          "scrubLengthVh": 100,
+          "items": [
+            {
+              "id": "watermelon-juice",
+              "name": "Watermelon",
+              "price": "seasonal"
+            },
+            {
+              "id": "pineapple-juice",
+              "name": "Pineapple",
+              "price": "seasonal"
+            },
+            {
+              "id": "orange-juice",
+              "name": "Orange",
+              "price": "seasonal"
+            }
+          ]
+        },
+        {
+          "key": "refreshers",
+          "label": "The Nines Refreshers",
+          "video": "refreshers.mp4",
+          "holdFrame": null,
+          "scrubLengthVh": 130,
+          "items": [
+            {
+              "id": "mango-breeze",
+              "name": "Mango Breeze",
+              "desc": "Fruity mix of mango, pineapple, passion fruit, fresh citrus and the hint of ginger and mint",
+              "price": 449
+            },
+            {
+              "id": "sai-mai",
+              "name": "Sai Mai",
+              "desc": "A vibrant fusion of lychee, cranberry, and lime, elegantly touched with charcoal",
+              "price": 449
+            },
+            {
+              "id": "berry-mist",
+              "name": "Berry Mist",
+              "desc": "A refreshing drink, a blend of strawberry, blueberry, fresh mint, citrusy note and topped up with ginger ale",
+              "price": 449
+            },
+            {
+              "id": "grapefruit-guava-twist",
+              "name": "Grapefruit Guava Twist",
+              "desc": "A perfect sweet and sour drink with the mix of pink grapefruit, guava, apple and the touch of coriander leaves",
+              "price": 449
+            },
+            {
+              "id": "peachy-dill",
+              "name": "Peachy Dill",
+              "desc": "A perfectly balanced drink featuring pineapple, peach, lime, muddled with fresh dill leaf for a bright tropical and herbal finish",
+              "price": 449
+            },
+            {
+              "id": "hibiscus-basil",
+              "name": "Hibiscus Basil",
+              "desc": "A harmonious blend of hibiscus and basil, perfectly complemented by the citrusy notes of orange and the tartness of cranberry",
+              "price": 449
+            }
+          ]
+        },
+        {
+          "key": "soft-beverages",
+          "label": "Soft Beverages",
+          "video": "soft-beverages.mp4",
+          "holdFrame": null,
+          "scrubLengthVh": 120,
+          "items": [
+            {
+              "id": "evian-mineral-water",
+              "name": "Evian Mineral Water",
+              "price": 429
+            },
+            {
+              "id": "perrier-sparkling-water-330ml",
+              "name": "Perrier Sparkling Water (330 ml)",
+              "price": 319
+            },
+            {
+              "id": "red-bull",
+              "name": "Red Bull",
+              "price": 319
+            },
+            {
+              "id": "canned-juice",
+              "name": "Canned Juice",
+              "price": 279
+            },
+            {
+              "id": "schweppes-tonic-water",
+              "name": "Schweppes Tonic Water",
+              "price": 219
+            },
+            {
+              "id": "vedika-mineral-water-still",
+              "name": "Vedika Mineral Water (Still)",
+              "price": 219
+            },
+            {
+              "id": "diet-coke",
+              "name": "Diet Coke",
+              "price": 219
+            },
+            {
+              "id": "coca-cola",
+              "name": "Coca-Cola",
+              "price": 159
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
